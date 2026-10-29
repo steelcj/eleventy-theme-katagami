@@ -12,6 +12,7 @@ npm start          # serve at http://localhost:8080 and rebuild on change
 npm run build      # build all locales into _site/
 npm run lint       # stylelint, including the logical-property rule
 npm run check      # check the built pages in _site/ against the theme's markup rules
+npm run fixture-images  # regenerate the stencil-pattern images in src/media/
 ```
 
 `npm run build:production` builds with `ELEVENTY_ENV=production`, which leaves fixture locales such as `ar` out of the language switcher. The fixture pages are still built.
@@ -21,8 +22,10 @@ npm run check      # check the built pages in _site/ against the theme's markup 
 - `eleventy.config.js` sets the directories and loads the theme plugin.
 - `src/` is Eleventy's input and holds site content only: one folder per language (`en`, `fr`, `ar`), global data in `src/_data/`, and `src/admin/` and `src/media/`, which are copied to the output unchanged.
 - `src/{lang}/_site/` holds the per-language site text, `footer.md` and `colophon.md`. These files are placed into the footer region and never published as pages.
-- `themes/katagami/` is the theme: manifest, plugin, layouts, parts, defaults, interface strings and assets.
-- `site/` holds site overrides. A file here shadows the theme file with the same path, so `site/parts/colophon.njk` replaces `themes/katagami/parts/colophon.njk`.
+- `themes/katagami/` is the theme: manifest, plugin, layouts, parts (the items placed in regions), partials (pieces shared by layouts, blocks and views), blocks, views, defaults, interface strings and assets.
+- `site/` holds site overrides. A file here shadows the theme file with the same path, so `site/parts/colophon.njk` replaces `themes/katagami/parts/colophon.njk`. A layout that only the site has, in `site/layouts/`, gets a stub too.
+- `site/index.js` is an optional extension point for site-only build code, such as extra data, filters or pages. When it exists, the theme plugin adds it as a plugin after registering everything else, so it can rely on the theme's loader, filters and data. It must not set directories, which belong to `eleventy.config.js`.
+- `scripts/` holds `check-pages.mjs`, run by `npm run check`, and `make-fixture-images.mjs`, which generates the fixture images.
 - `en/docs/` is project documentation and is never built.
 
 ## Overriding the theme

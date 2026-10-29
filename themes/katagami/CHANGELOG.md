@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Stubs for site-only layouts in `site/layouts/`, and `site/index.js` added as a plugin after the theme when present.
+- Base table styles and Markdown table alignment as `data-align`, styled with logical CSS.
+
+### Changed
+
+- `block-list`, `picture` and `lead-image` moved to `partials/`; `parts/` holds only region items.
+- Section navigation does not render when every page in the section is hidden.
+
 ## [0.3.0] - 2026-10-28
 
 ### Added

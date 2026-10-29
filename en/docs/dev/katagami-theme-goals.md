@@ -196,7 +196,8 @@ Rules that follow from the spike:
 
 - Layouts chain with `{% extends %}` and blocks, never with front-matter `layout:` inside a layout file, because front matter read through an extend appears as literal text.
 - The site's `eleventy.config.js` sets the directories, since plugins cannot set the layouts directory; `themes/katagami/index.js` registers the loader, the stubs and everything else.
-- Only layouts the theme ships get stubs. A site-only layout requires the plugin to scan `site/layouts/` at startup as well.
+- The plugin registers a stub for each layout the theme ships and for each layout only the site has, by scanning `site/layouts/` at startup as well.
+- `site/index.js` is an optional extension point for site-only build code, such as extra data, filters or pages. When it exists, the theme plugin adds it as a plugin after registering everything else, so it can rely on the theme's loader, filters and data. It must not set directories, which belong to `eleventy.config.js`, and a site without it builds the same way.
 
 ## Regions and site text
 

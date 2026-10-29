@@ -3,7 +3,7 @@
 {%- set imgSizes = imageSizes or "content" %}
 {%- set imgEager = eager %}
 <figure class="block block--image">
-  {% include "parts/picture.njk" %}
+  {% include "partials/picture.njk" %}
   {%- if block.caption %}
   <figcaption>{{ block.caption }}</figcaption>
   {%- endif %}

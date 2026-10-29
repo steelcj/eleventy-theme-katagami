@@ -4,7 +4,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import Nunjucks from "nunjucks";
 import markdownIt from "markdown-it";
 import yaml from "js-yaml";
@@ -51,6 +51,20 @@ function createMarkdown() {
     }
     return renderLinkOpen(tokens, idx, options, env, self);
   };
+
+  // Table column alignment becomes a data-align attribute instead of an inline
+  // text-align style, so it follows the page direction: a column aligned left in
+  // Markdown is aligned to the start of the line, which is the right in Arabic.
+  const logicalAlign = { left: "start", center: "center", right: "end" };
+  md.core.ruler.push("logical_table_align", (state) => {
+    for (const token of state.tokens) {
+      if (token.type !== "th_open" && token.type !== "td_open") continue;
+      const align = token.attrGet("style")?.match(/text-align:(left|center|right)/)?.[1];
+      if (!align) continue;
+      token.attrs = token.attrs.filter(([name]) => name !== "style");
+      token.attrSet("data-align", logicalAlign[align]);
+    }
+  });
 
   return md;
 }
@@ -153,7 +167,7 @@ function translationKey(url, lang, explicitKey) {
   return url && lang && url.startsWith(`/${lang}/`) ? url.slice(lang.length + 1) : undefined;
 }
 
-export default function katagami(eleventyConfig) {
+export default async function katagami(eleventyConfig) {
   const inputDir = eleventyConfig.directories?.input ?? "src";
   const md = createMarkdown();
 
@@ -239,7 +253,12 @@ export default function katagami(eleventyConfig) {
     "njk",
     new Nunjucks.Environment(new Nunjucks.FileSystemLoader([SITE_DIR, THEME_DIR], { noCache: true })),
   );
-  for (const file of fs.readdirSync(`${THEME_DIR}/layouts`)) {
+  // A stub for each layout the theme ships, and for each layout only the site has.
+  const layoutFiles = new Set(fs.readdirSync(`${THEME_DIR}/layouts`));
+  if (fs.existsSync(`${SITE_DIR}/layouts`)) {
+    for (const file of fs.readdirSync(`${SITE_DIR}/layouts`)) layoutFiles.add(file);
+  }
+  for (const file of layoutFiles) {
     if (file.endsWith(".njk")) {
       eleventyConfig.addTemplate(`_layouts/${file}`, `{% extends "layouts/${file}" %}`);
     }
@@ -431,4 +450,12 @@ export default function katagami(eleventyConfig) {
   eleventyConfig.addPassthroughCopy(`${inputDir}/media`, {
     filter: ["**/*", "!**/*.{jpg,jpeg,png,webp,avif,tif,tiff}"],
   });
+
+  // site/index.js, when present, extends the theme as site/ files shadow it, so that
+  // site-only build code stays out of eleventy.config.js.
+  const sitePlugin = path.resolve(SITE_DIR, "index.js");
+  if (fs.existsSync(sitePlugin)) {
+    const { default: plugin } = await import(pathToFileURL(sitePlugin).href);
+    await eleventyConfig.addPlugin(plugin);
+  }
 }

@@ -7,12 +7,12 @@
       {%- if description %}
       <p class="lead">{{ description }}</p>
       {%- endif %}
-      {%- include "parts/lead-image.njk" %}
+      {%- include "partials/lead-image.njk" %}
       {{ content | safe }}
       {%- set blockList = blocks %}
       {%- set eagerBlock = -1 if image.src else blocks | firstImageBlock %}
       {%- set headingLevel = 2 %}
-      {%- include "parts/block-list.njk" %}
+      {%- include "partials/block-list.njk" %}
       {%- set items = collections.all | folderItems(page.url, sort or "order") %}
       {%- if items | length %}
       {%- set itemHeadingLevel = 3 %}

@@ -1,7 +1,8 @@
 {#- The pages of the top-level section this page is in, opened down to the current page.
     The current page is never opened: on a folder's own page its view already lists its
     children. On a top-level section's own page there is nothing to show beyond the main
-    menu, so the part renders nothing. Pages with excludeFromNav: true are left out. #}
+    menu, so the part renders nothing, as it does when every page in the section is
+    hidden. Pages with excludeFromNav: true are left out. #}
 {%- macro navList(entries, currentKey) %}
 <ul>
   {%- for entry in entries | rejectattr("hidden") %}
@@ -18,10 +19,10 @@
 {%- if navTrail | length > 1 and navTrail[1].key != eleventyNavigation.key %}
 {%- set section = navTrail[1] %}
 {%- set entries = collections.all | eleventyNavigation(section.key) %}
+{%- if entries | rejectattr("hidden") | length %}
 <nav class="section-nav" aria-label="{{ 'sectionNavigation' | t(lang) }}">
   <p class="section-nav__title"><a href="{{ section.url }}"><bdi>{{ section.title }}</bdi></a></p>
-  {%- if entries | rejectattr("hidden") | length %}
   {{ navList(entries, eleventyNavigation.key) }}
-  {%- endif %}
 </nav>
+{%- endif %}
 {%- endif %}

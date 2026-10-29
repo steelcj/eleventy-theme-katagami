@@ -12,7 +12,7 @@
   {%- set img = { src: teaserImage.src, decorative: true } %}
   {%- set imgSizes = "card" %}
   {%- set imgEager = false %}
-  {% include "parts/picture.njk" %}
+  {% include "partials/picture.njk" %}
   {%- endif %}
   <h{{ headingLevel }} class="card__title"><a href="{{ block.link }}"><bdi>{{ teaserTitle }}</bdi></a></h{{ headingLevel }}>
   {%- if teaserDescription %}

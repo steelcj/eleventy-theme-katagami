@@ -2,6 +2,28 @@
 
 All notable changes to this project are recorded here. The format follows Keep a Changelog, and versions follow Semantic Versioning.
 
+## [Unreleased]
+
+Phase 4 preparation.
+
+### Added
+
+- Stubs for layouts that only the site has, in `site/layouts/`.
+- `site/index.js`, an optional extension point for site-only build code, added as a plugin after the theme when present. It must not set directories.
+- `npm run fixture-images` and `scripts/make-fixture-images.mjs`, which regenerate the fixture images byte for byte.
+- Base table styles, so tables in Markdown have cell spacing and rules.
+- Markdown table column alignment as a `data-align` attribute (start, center or end) styled with logical CSS, instead of markdown-it's inline `text-align` styles, so columns mirror in right-to-left pages. Fixtures in `en/fixtures/tables` and the Arabic mixed-direction page.
+- `npm run check` reports any inline style attribute.
+- `.claude/settings.json` with the project's command permissions; `.claude/settings.local.json` and `resume.txt` are ignored.
+
+### Changed
+
+- Section navigation does not render when every page in the section is hidden from navigation.
+
+- `block-list`, `picture` and `lead-image` moved from `parts/` to a new `partials/` folder, so `parts/` holds only items placed in regions.
+- stylelint 17 and `stylelint-config-recommended` 18, with the same logical-property rules.
+- `sharp` is a direct development dependency, used by the fixture image script.
+
 ## [0.3.0] - 2026-10-28
 
 Phase 3, blocks and views.

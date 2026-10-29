@@ -75,6 +75,33 @@ img {
   background-color: var(--color-surface);
 }
 
+table {
+  border-collapse: collapse;
+  margin-block: 0 var(--space-m);
+}
+
+th,
+td {
+  padding-block: var(--space-xs);
+  padding-inline: 0 var(--space-m);
+  border-block-end: var(--rule-width) solid var(--color-rule);
+  text-align: start;
+  vertical-align: top;
+}
+
+/* Column alignment from Markdown tables, in logical terms. */
+[data-align="start"] {
+  text-align: start;
+}
+
+[data-align="center"] {
+  text-align: center;
+}
+
+[data-align="end"] {
+  text-align: end;
+}
+
 code,
 pre {
   font-family: var(--font-mono);

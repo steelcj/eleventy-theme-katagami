@@ -63,6 +63,9 @@ for (const file of files) {
   if (images.some((img) => !/ width="/.test(img) || !/ height="/.test(img))) report("<img> without width and height");
   if (images.filter((img) => img.includes('loading="eager"')).length > 1) report("more than one eager image");
 
+  // No inline styles: presentation comes from the theme's CSS, in logical terms.
+  if (/\sstyle="/.test(html)) report("inline style attribute");
+
   // No empty regions.
   if (/<(aside|div|header|footer) class="region[^"]*">\s*<\/\1>/.test(html)) report("empty region");
 

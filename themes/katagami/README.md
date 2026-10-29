@@ -23,7 +23,9 @@ export default function (eleventyConfig) {
 ## What the plugin provides
 
 - Templates resolved from `site/` first, then this folder, with caching off.
-- A virtual stub in `_layouts/` for each file in `layouts/`, so pages use `layout: page.njk` or `layout: section.njk`.
+- A virtual stub in `_layouts/` for each file in `layouts/` and in the site's `site/layouts/`, so pages use `layout: page.njk` or `layout: section.njk`.
+- `parts/` holds only the items placed in regions; `partials/` holds pieces shared by layouts, blocks and views: the block list, the image markup and the lead image.
+- The site's `site/index.js`, when present, added as a plugin after the theme.
 - YAML data files, a computed `dir` for every page from its `lang` and `_data/locales.yaml`, and a `katagami` global with the manifest, default regions, interface strings and per-language site text from `{lang}/_site/*.md`.
 - A computed `eleventyNavigation` entry for every page in a language folder, with the Eleventy Navigation plugin registered.
 - Filters: `t` for interface strings, `regionParts` for the parts in a region, `translationUrl` for a page's translation, `localeFor` for a locale's settings, `folderItems` for the pages in a folder, `markdown` for Markdown fields, and `formatDate` for dates.

@@ -14,7 +14,8 @@
     "build:production": "ELEVENTY_ENV=production eleventy",
     "start": "eleventy --serve --watch",
     "lint": "stylelint --allow-empty-input \"themes/**/*.css\" \"site/**/*.css\"",
-    "check": "node scripts/check-pages.mjs"
+    "check": "node scripts/check-pages.mjs",
+    "fixture-images": "node scripts/make-fixture-images.mjs src/media"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.1.7",
@@ -26,7 +27,8 @@
     "nunjucks": "npm:@11ty/nunjucks@^3.3.0"
   },
   "devDependencies": {
-    "stylelint": "^16.26.1",
-    "stylelint-config-recommended": "^17.0.0"
+    "sharp": "^0.35.5",
+    "stylelint": "^17.16.0",
+    "stylelint-config-recommended": "^18.0.0"
   }
 }

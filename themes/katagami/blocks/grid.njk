@@ -9,6 +9,6 @@
   {%- endif %}
   {%- set headingLevel = innerHeadingLevel %}
   <div class="grid{% if block.columns in [2, 3, 4] %} grid--columns-{{ block.columns }}{% endif %}">
-    {%- include "parts/block-list.njk" %}
+    {%- include "partials/block-list.njk" %}
   </div>
 </div>

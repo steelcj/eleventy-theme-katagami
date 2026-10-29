@@ -7,7 +7,7 @@
     {%- set img = { src: item.data.image.src, decorative: true } %}
     {%- set imgSizes = "card" %}
     {%- set imgEager = false %}
-    {% include "parts/picture.njk" %}
+    {% include "partials/picture.njk" %}
     {%- endif %}
     <h{{ itemHeadingLevel }} class="card__title"><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></h{{ itemHeadingLevel }}>
     {%- if item.data.description %}
