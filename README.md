@@ -28,6 +28,10 @@ npm run fixture-images  # regenerate the stencil-pattern images in src/media/
 - `scripts/` holds `check-pages.mjs`, run by `npm run check`, and `make-fixture-images.mjs`, which generates the fixture images.
 - `en/docs/` is project documentation and is never built.
 
+## Font specimens
+
+The pages under `/en/specimens/`, `/fr/specimens/` and `/ar/specimens/` compare the candidate fonts for the three font sets, Hyperlegible, Mincho and Gothic, by setting the same text once in each candidate. English and French pages compare the Latin fonts; Arabic pages compare the Arabic companions. The candidates come from Fontsource packages, listed in `site/specimens/candidates.yaml`; only their 400 and 700 weights in the Latin, Latin Extended and Arabic subsets are copied, to `/specimens/fonts/`. The specimens are temporary: once the fonts are chosen, the chosen WOFF2 subsets and their licences move into `themes/katagami/assets/fonts/`, and `site/specimens/`, `site/index.js`, `site/layouts/specimen.njk`, the specimen pages and the Fontsource packages are removed.
+
 ## Overriding the theme
 
 Templates are resolved by a Nunjucks loader that searches `site/` first, then `themes/katagami/`. To change a part or a layout, copy it from the theme to the same path under `site/` and edit the copy. Layouts are reached through one-line virtual stubs, so a `site/layouts/page.njk` takes the place of the theme's `page.njk` everywhere.

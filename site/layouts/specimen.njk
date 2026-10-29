@@ -1,0 +1,22 @@
+{% extends "layouts/page.njk" %}
+
+{#- A font specimen: the page's text set once in each candidate of the font set named by
+    `specimen`. Temporary, for choosing the fonts in phase 4; see site/specimens/plugin.js. #}
+{% block head %}
+  <link rel="stylesheet" href="/specimens/fonts.css">
+{%- endblock %}
+
+{% block content %}
+      <h1>{{ title }}</h1>
+      {%- if description %}
+      <p class="lead">{{ description }}</p>
+      {%- endif %}
+      {%- set fontSet = specimens[specimen] %}
+      {%- for combination in (fontSet.arabic if lang == "ar" else fontSet.latin) %}
+      <section class="specimen specimen--{{ combination.id }}" aria-labelledby="specimen-{{ combination.id }}">
+        <h2 id="specimen-{{ combination.id }}"><bdi>{{ combination.label }}</bdi></h2>
+        <p class="specimen__fonts"><bdi lang="en" dir="ltr">Headings: {{ combination.heading }} · Body: {{ combination.body }} · Arabic: {{ combination.arabic }}</bdi></p>
+        {{ content | safe }}
+      </section>
+      {%- endfor %}
+{%- endblock %}

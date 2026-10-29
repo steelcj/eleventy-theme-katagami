@@ -8,6 +8,7 @@ Phase 4 preparation.
 
 ### Added
 
+- Font specimen pages in `en`, `fr` and `ar` for the Hyperlegible, Mincho and Gothic font sets, on the `specimens` branch only. Each sets the same text (headings, a heading-size line of curly quotes and apostrophes on the Mincho pages, body text, easily confused letters, numerals, a table and mixed-direction text) once in each candidate: Atkinson Hyperlegible and Atkinson Hyperlegible Next, Shippori Mincho and Zen Old Mincho, BIZ UDPGothic and Zen Kaku Gothic New, and the Arabic companions Noto Naskh Arabic, IBM Plex Sans Arabic and Vazirmatn. The candidates come from Fontsource packages, through `site/index.js`.
 - Stubs for layouts that only the site has, in `site/layouts/`.
 - `site/index.js`, an optional extension point for site-only build code, added as a plugin after the theme when present. It must not set directories.
 - `npm run fixture-images` and `scripts/make-fixture-images.mjs`, which regenerate the fixture images byte for byte.

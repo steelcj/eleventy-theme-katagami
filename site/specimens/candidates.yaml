@@ -1,0 +1,18 @@
+# Font candidates for the three font sets, by Fontsource package name. English and
+# French specimen pages compare the Latin candidates, with the set's first Arabic font
+# for Arabic words; Arabic pages compare the Arabic candidates, with the set's first
+# Latin font for Latin words.
+hyperlegible:
+  generic: sans-serif
+  latin: [atkinson-hyperlegible, atkinson-hyperlegible-next]
+  arabic: [ibm-plex-sans-arabic, vazirmatn]
+mincho:
+  generic: serif
+  latin: [shippori-mincho, zen-old-mincho]
+  # The Mincho set uses Mincho for headings and Atkinson Hyperlegible for body text.
+  body: atkinson-hyperlegible
+  arabic: [noto-naskh-arabic]
+gothic:
+  generic: sans-serif
+  latin: [biz-udpgothic, zen-kaku-gothic-new]
+  arabic: [ibm-plex-sans-arabic, vazirmatn]
