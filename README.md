@@ -15,11 +15,12 @@ npm run check      # check the built pages in _site/ against the theme's markup 
 npm run check:browser   # check the built site in a real browser (see below)
 npm run fixture-images  # regenerate the stencil-pattern images in src/media/
 npm run vendor-fonts    # copy the fonts listed in theme.yaml and regenerate the font set CSS
+npm run vendor-infusion # copy Fluid Infusion UI Options, at the version in theme.yaml
 ```
 
 `npm run build:production` builds with `ELEVENTY_ENV=production`, which leaves fixture locales such as `ar` out of the language switcher. The fixture pages are still built.
 
-`npm run check` reads the built HTML only. `npm run check:browser` loads the built site in the Chromium that Playwright installs, never the system browser, and checks the reader's font set switch, the page without JavaScript, which fonts each page downloads, and the vertical rhythm of a text page. Install that browser once with `npx playwright install chromium`.
+`npm run check` reads the built HTML only. `npm run check:browser` loads the built site in the Chromium that Playwright installs, never the system browser, and checks the reader preferences panel, the panel under the site's Content Security Policy and when Infusion fails to load, the reader's system settings, accessibility with axe-core under the site's colours, high contrast and dark in all three languages, which fonts each page downloads, the vertical rhythm, and the page without JavaScript. Install that browser once with `npx playwright install chromium`.
 
 ## Layout
 
@@ -29,7 +30,7 @@ npm run vendor-fonts    # copy the fonts listed in theme.yaml and regenerate the
 - `themes/katagami/` is the theme: manifest, plugin, layouts, parts (the items placed in regions), partials (pieces shared by layouts, blocks and views), blocks, views, defaults, interface strings and assets.
 - `site/` holds site overrides. A file here shadows the theme file with the same path, so `site/parts/colophon.njk` replaces `themes/katagami/parts/colophon.njk`. A layout that only the site has, in `site/layouts/`, gets a stub too.
 - `site/index.js` is an optional extension point for site-only build code, such as extra data, filters or pages. When it exists, the theme plugin adds it as a plugin after registering everything else, so it can rely on the theme's loader, filters and data. It must not set directories, which belong to `eleventy.config.js`.
-- `scripts/` holds `check-pages.mjs` and `check-browser.mjs`, run by `npm run check` and `npm run check:browser`, `make-fixture-images.mjs`, which generates the fixture images, and `vendor-fonts.mjs`, which copies the theme's fonts.
+- `scripts/` holds `check-pages.mjs` and `check-browser.mjs`, run by `npm run check` and `npm run check:browser`, `make-fixture-images.mjs`, which generates the fixture images, and `vendor-fonts.mjs` and `vendor-infusion.mjs`, which copy the theme's fonts and Fluid Infusion.
 - `en/docs/` is project documentation and is never built.
 
 ## Overriding the theme
@@ -118,9 +119,37 @@ The theme has three font sets. Atkinson Hyperlegible Next sets body text in all 
 | `mincho` | Shippori Mincho | Atkinson Hyperlegible Next | Noto Naskh Arabic |
 | `gothic` | Zen Kaku Gothic New | Atkinson Hyperlegible Next | IBM Plex Sans Arabic |
 
-The site picks its set with `fontSet` in `src/_data/site.yaml`, `hyperlegible` by default. Readers can choose another in the header; the choice needs JavaScript, is kept in the browser's local storage and applies before the page is drawn. Each page loads only its set's CSS and preloads one font file: the body font's regular weight, or the Arabic companion's on pages in a locale with `fontSet: arabic`.
+The site picks its set with `fontSet` in `src/_data/site.yaml`, `hyperlegible` by default, and readers can choose another in the preferences panel. Each page loads only its set's CSS and preloads one font file: the body font's regular weight, or the Arabic companion's on pages in a locale with `fontSet: arabic`.
 
 The fonts are self-hosted WOFF2 files under the SIL Open Font License, in `themes/katagami/assets/fonts/`, with each font's licence in its `OFL.txt`. Only the 400 and 700 weights of the Latin, Latin Extended and Arabic subsets are kept, and each subset downloads only when a page uses its characters. To change a font, edit `fonts` and `fontSets` in `theme.yaml` and run `npm run vendor-fonts`, which fetches the Fontsource packages without adding them as dependencies. Versions in `theme.yaml` must be exact, such as `5.3.0`; the script refuses a range.
+
+## Reader preferences
+
+A "Display preferences" button in the header opens a panel, Fluid Infusion UI Options, where readers adjust text size, line spacing, fonts and contrast. Contrast follows the reader's device by default, and offers the site's colours, high contrast and dark. Infusion is self-hosted and loads only when a reader first opens the panel.
+
+- Without JavaScript the button is hidden; the site's settings apply, and the reader's system settings choose dark or high-contrast colours and turn off animation.
+- The button's label stays the same, "Display preferences", "Préférences d’affichage" or "تفضيلات العرض"; `aria-expanded` tells whether the panel is open.
+- If Infusion cannot load, the button shows a short message in the page's language, such as "Preferences couldn’t load", a status message announces it to screen readers, and the rest of the page is unaffected. Clicking again tries once more.
+- Preferences are kept in the browser's local storage under `katagami-preferences`, as `{ "version": 1, … }` with only the values that differ from the defaults, and apply before the page is drawn. No cookie is used. Reset clears them.
+- The panel's strings, for its button, the theme's own choices, and Arabic for the whole panel, are in `themes/katagami/i18n/preferences/`.
+
+### Content Security Policy
+
+The site works, preferences panel included, under this minimum policy, which each build writes to `_site/assets/csp.json` with the current hashes:
+
+```text
+default-src 'self'; script-src 'self' 'sha256-…'; style-src 'self' 'sha256-…'
+```
+
+- Everything, scripts, styles, fonts, images and the panel's templates and messages, loads from the site itself, so `'self'` covers it.
+- The script hash is that of the site's only inline script, the one in the page head that applies saved preferences.
+- The style hash is that of the one `<style>` element Infusion's core adds when it loads. It styles classes the theme does not use, so blocking it changes nothing, but allowing it keeps the policy free of violation reports.
+- Infusion needs no `'unsafe-eval'` and no `'unsafe-inline'`. Styles it and the theme set from scripts, such as the text size, go through the CSS object model, which a policy does not restrict.
+- `npm run check:browser` opens the panel under this policy and fails on any violation.
+
+### Upgrading Infusion
+
+Change `preferences.infusion` in `themes/katagami/theme.yaml`, run `npm run vendor-infusion`, then `npm run build` and `npm run check:browser`. The theme re-registers Infusion's font and contrast schemas, `fluid.prefs.schemas.textFont` and `fluid.prefs.schemas.contrast`, and relies on the names of its panels, messages and events, so a new version must pass the browser checks before it is used. The style hash in the policy is recomputed from the new build.
 
 ## Typography
 

@@ -2,6 +2,7 @@
 // data, filters, linters and asset copies. The site's eleventy.config.js sets
 // the directories, which plugins cannot do, and then adds this plugin.
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -518,9 +519,50 @@ export default async function katagami(eleventyConfig) {
   });
   eleventyConfig.addFilter("imageRatio", imageRatioClass);
 
+  // The minimum Content Security Policy the site works under, written to assets/csp.json.
+  // Everything loads from the site itself; the only inline script is the preferences
+  // script in the page head, and the only inline style is the one Infusion's core adds
+  // when it loads, so each is allowed by its hash.
+  eleventyConfig.on("eleventy.after", ({ results, directories }) => {
+    const hash = (text) => `'sha256-${crypto.createHash("sha256").update(text).digest("base64")}'`;
+    const page = results.find(({ outputPath }) => String(outputPath).endsWith(".html"));
+    const script = page && String(page.content).match(/<script>([\s\S]*?)<\/script>/)?.[1];
+    if (!script) return;
+    const infusion = path.join(THEME_DIR, "assets/vendor/infusion/infusion-uio.js");
+    const styles = fs.existsSync(infusion)
+      ? [...fs.readFileSync(infusion, "utf8").matchAll(/<style type=.text\/css.>([\s\S]*?)<\/style>/g)].map((match) => hash(match[1]))
+      : [];
+    const scriptSrc = ["'self'", hash(script)];
+    const styleSrc = ["'self'", ...styles];
+    fs.writeFileSync(
+      path.join(directories.output, "assets/csp.json"),
+      `${JSON.stringify(
+        {
+          note: "The minimum Content Security Policy the site works under, preferences panel included. Generated at build time.",
+          policy: `default-src 'self'; script-src ${scriptSrc.join(" ")}; style-src ${styleSrc.join(" ")}`,
+          "script-src": scriptSrc,
+          "style-src": styleSrc,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  });
+
   // Assets and passthrough folders. Raster images in media/ are published only as
   // processed files.
   eleventyConfig.addPassthroughCopy({ [`${THEME_DIR}/assets`]: "assets" }, { filter: ["**/*", "!**/README.md"] });
+  // The theme's own messages for the preferences panel sit beside Infusion's. Infusion
+  // also asks for each file's English variant, such as fontSet_en.json, so the English
+  // files are published under both names.
+  eleventyConfig.addPassthroughCopy({ [`${THEME_DIR}/i18n/preferences`]: "assets/vendor/infusion/messages" });
+  for (const file of fs.readdirSync(`${THEME_DIR}/i18n/preferences`)) {
+    if (/^[a-zA-Z]+\.json$/.test(file)) {
+      eleventyConfig.addPassthroughCopy({
+        [`${THEME_DIR}/i18n/preferences/${file}`]: `assets/vendor/infusion/messages/${file.replace(".json", "_en.json")}`,
+      });
+    }
+  }
   eleventyConfig.addPassthroughCopy(`${inputDir}/admin`);
   eleventyConfig.addPassthroughCopy(`${inputDir}/media`, {
     filter: ["**/*", "!**/*.{jpg,jpeg,png,webp,avif,tif,tiff}"],

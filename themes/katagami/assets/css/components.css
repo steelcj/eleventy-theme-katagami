@@ -92,24 +92,6 @@
   font-family: var(--font-system);
 }
 
-/* Reader options. The container keeps the browser's display so that `hidden` hides it. */
-.ui-options {
-  font-size: var(--step--1);
-}
-
-.ui-options label {
-  margin-inline-end: var(--space-xs);
-}
-
-.ui-options select {
-  padding-block: var(--space-2xs);
-  padding-inline: var(--space-xs);
-  border: var(--rule-width) solid var(--color-rule);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-}
-
 .breadcrumbs {
   font-size: var(--step--1);
   color: var(--color-text-muted);
@@ -202,7 +184,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  gap: var(--space-m);
+  gap: calc(var(--baseline) * 4) var(--space-m);
 }
 
 .grid > .block {
@@ -243,7 +225,8 @@
    whole number of baselines tall. */
 .card {
   position: relative;
-  padding: var(--space-m);
+  padding-block: calc(var(--baseline) * 4);
+  padding-inline: var(--space-m);
   outline: var(--rule-width) solid var(--color-rule);
   outline-offset: calc(-1 * var(--rule-width));
   background-color: var(--color-surface);
@@ -263,7 +246,7 @@
 .card picture {
   display: block;
   container-type: inline-size;
-  margin-block: calc(-1 * var(--space-m)) calc(var(--baseline) * 3);
+  margin-block: calc(-4 * var(--baseline)) calc(var(--baseline) * 3);
   margin-inline: calc(-1 * var(--space-m));
 }
 
@@ -299,7 +282,8 @@
 }
 
 .block--call-to-action {
-  padding: var(--space-m) var(--space-l);
+  padding-block: calc(var(--baseline) * 4);
+  padding-inline: var(--space-l);
   border-inline-start: 4px solid var(--color-accent);
   background-color: var(--color-surface);
 }
@@ -310,14 +294,14 @@
   display: inline-block;
   padding: var(--baseline) var(--space-m);
   vertical-align: top;
-  background-color: var(--color-indigo);
-  color: var(--color-washi);
+  background-color: var(--color-button);
+  color: var(--color-button-text);
   text-decoration: none;
 }
 
 .button:hover {
-  background-color: var(--color-accent);
-  color: var(--color-washi);
+  background-color: var(--color-button-hover);
+  color: var(--color-button-text);
 }
 
 .block--unknown {
@@ -424,4 +408,146 @@ figcaption {
 .view--tabular tbody th {
   min-inline-size: 9em;
   font-weight: 400;
+}
+
+/* Reader preferences: Fluid Infusion UI Options, styled with the theme's tokens through the
+   custom properties Infusion's stylesheets read. The part's own box is dropped, so its
+   buttons sit in the header row and its panel opens as a full-width row below them.
+   Selectors are one class stronger than Infusion's, whose stylesheets load later. */
+.ui-options {
+  --fl-font-family: var(--font-body);
+  --fl-bgColor: var(--color-background);
+  --fl-fgColor: var(--color-text);
+  --fl-buttonBgColor: var(--color-background);
+  --fl-buttonFgColor: var(--color-link);
+}
+
+.ui-options:not([hidden]) {
+  display: contents;
+}
+
+.region--header .ui-options .fl-panelBar {
+  inline-size: auto;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+}
+
+.region--header .ui-options .fl-prefsEditor-buttons {
+  display: flex;
+  gap: var(--space-s);
+  align-items: baseline;
+  block-size: auto;
+  inline-size: auto;
+  min-block-size: 0;
+  float: none;
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+  background: none;
+}
+
+.region--header .ui-options .fl-prefsEditor-showHide,
+.region--header .ui-options .fl-prefsEditor-reset {
+  min-block-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--step--1);
+  text-align: start;
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-width);
+  text-underline-offset: 0.2em;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.region--header .ui-options .flc-slidingPanel-panel {
+  flex-basis: 100%;
+  order: 1;
+}
+
+.region--header .ui-options .fl-prefsEditor {
+  min-inline-size: 0;
+  overflow: visible;
+  background: none;
+}
+
+.region--header .ui-options .fl-prefsEditor-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-s);
+  margin: 0;
+  padding-block: var(--space-s) 0;
+  border-spacing: 0;
+}
+
+.region--header .ui-options .fl-prefsEditor-panels .fl-prefsEditor-panel {
+  display: block;
+  min-inline-size: 0;
+  padding: var(--space-s);
+  border: 0;
+  border-radius: 0;
+  outline: var(--rule-width) solid var(--color-rule);
+  outline-offset: calc(-1 * var(--rule-width));
+  box-shadow: none;
+  background-color: var(--color-surface);
+}
+
+/* On small screens Infusion pages through the panels with arrows beside their headings;
+   here the panels stack, so the arrows go. */
+.region--header .ui-options .fl-prefsEditor-panels .fl-prefsEditor-panel h2::before,
+.region--header .ui-options .fl-prefsEditor-panels .fl-prefsEditor-panel h2::after {
+  content: none;
+}
+
+/* The steppers' icons repeat the panel headings. */
+.region--header .ui-options .fl-prefsEditor-panels .fl-prefsEditor-panel .fl-textfieldStepper [class*="fl-icon-"] {
+  display: none;
+}
+
+.region--header .ui-options .fl-prefsEditor-panels .fl-prefsEditor-panel h2 {
+  block-size: auto;
+  min-block-size: 0;
+  margin-block: 0 var(--baseline);
+  margin-inline: 0;
+  border: 0;
+  box-shadow: none;
+  font-size: var(--step-0);
+  text-transform: none;
+}
+
+/* Previews of the contrast choices, in each scheme's own colours. */
+.ui-options .katagami-preview-contrast-site {
+  background-color: var(--color-washi);
+  color: var(--color-sumi);
+}
+
+.ui-options .katagami-preview-contrast-high {
+  background-color: #fff;
+  color: #000;
+}
+
+.ui-options .katagami-preview-contrast-dark {
+  background-color: #1c1a17;
+  color: #f2ede3;
+}
+
+.ui-options .katagami-preview-contrast-default {
+  background-image: linear-gradient(135deg, var(--color-washi) 50%, #1c1a17 50%);
+  color: var(--color-link);
+}
+
+/* The status message that announces a failed load is for screen readers; the button
+   itself shows the message. */
+.ui-options__status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

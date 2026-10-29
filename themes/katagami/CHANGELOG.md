@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-29
+
+### Added
+
+- Reader preferences with Fluid Infusion UI Options, vendored and loaded on demand: text size, line spacing, fonts and contrast, mapped onto the theme's tokens, kept in local storage, applied before the page is drawn, with a fixed "Display preferences" button and a translated message if Infusion cannot load.
+- High-contrast and dark schemes, chosen by the reader or by their system settings.
+- A minimum Content Security Policy in `assets/csp.json`, with hashes for the head script and Infusion's one style.
+
+### Changed
+
+- The baseline is rounded to a whole pixel; the font select from 0.4.0 is replaced by the panel.
+
 ## [0.4.0] - 2026-10-28
 
 ### Added

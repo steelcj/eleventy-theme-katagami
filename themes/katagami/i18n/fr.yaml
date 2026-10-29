@@ -12,7 +12,6 @@ unknownView: Vue inconnue
 title: Titre
 description: Description
 date: Date
-fontSet: Police
-fontSetHyperlegible: Hyperlegible
-fontSetMincho: Mincho
-fontSetGothic: Gothique
+reset: Réinitialiser
+preferences: Préférences d’affichage
+preferencesFailed: Les préférences n’ont pas pu être chargées

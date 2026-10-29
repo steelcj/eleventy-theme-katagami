@@ -1,6 +1,6 @@
 name: katagami
 title: Katagami
-version: 0.4.0
+version: 0.5.0
 description: A Plone-inspired Eleventy theme with a vintage Japanese, minimalist style.
 author: Vishpala
 license: MIT
@@ -29,6 +29,12 @@ fontSets:
       heading: zen-kaku-gothic-new
       body: atkinson-hyperlegible-next
       arabic: ibm-plex-sans-arabic
+# Reader preferences: Fluid Infusion UI Options, at this exact version, copied into
+# assets/vendor/infusion/ by scripts/vendor-infusion.mjs and loaded only when a reader
+# opens the preferences panel. Contrast schemes are defined in assets/css/tokens.css.
+preferences:
+  infusion: 4.8.0
+  contrast: [default, high, dark]
 # Fonts, from Fontsource packages, all under the SIL Open Font License 1.1. Only the
 # 400 and 700 weights of the listed subsets are kept, in assets/fonts/<name>/.
 fonts:

@@ -1,11 +1,20 @@
-{#- Reader options: for now, the font set. Choosing needs JavaScript, so the control stays
-    hidden until assets/js/font-preference.js shows it; without it the site's font set is used. #}
-<div class="ui-options" data-ui-options hidden>
-  <label for="font-set-choice">{{ "fontSet" | t(lang) }}</label>
-  <select id="font-set-choice" data-font-set-choice>
-    {%- for name in katagami.fontSets.names %}
-    <option value="{{ name }}">{{ ("fontSet" + (name | capitalize)) | t(lang) }}</option>
-    {%- endfor %}
-  </select>
-</div>
-<script src="/assets/js/font-preference.js" defer></script>
+{#- Reader preferences: Fluid Infusion UI Options, in a panel that opens below the header,
+    for fonts, contrast, text size and line spacing. Infusion loads only when a reader first
+    opens the panel. The part stays hidden without JavaScript, when the site's settings and
+    the reader's system settings apply; saved preferences apply before the page is drawn.
+    The button's label stays the same; aria-expanded tells whether the panel is open. #}
+<section class="flc-prefsEditor-separatedPanel fl-prefsEditor-separatedPanel ui-options" data-preferences hidden
+  data-infusion="/assets/vendor/infusion/" data-setup="/assets/js/preferences-uio.js"
+  data-locale="{{ langTag }}" data-direction="{{ dir }}"
+  data-font-sets="{{ katagami.fontSets.names | join(' ') }}" data-font-set="{{ fontSet }}"
+  data-failed="{{ 'preferencesFailed' | t(lang) }}">
+  <div class="fl-panelBar">
+    <span class="fl-prefsEditor-buttons">
+      <button type="button" class="flc-slidingPanel-toggleButton fl-prefsEditor-showHide" aria-expanded="false">{{ "preferences" | t(lang) }}</button>
+      <button type="button" class="flc-prefsEditor-reset fl-prefsEditor-reset" data-preferences-reset>{{ "reset" | t(lang) }}</button>
+      <span class="ui-options__status" role="status" data-preferences-status></span>
+    </span>
+  </div>
+  <div class="flc-slidingPanel-panel"></div>
+</section>
+<script src="/assets/js/preferences.js" defer></script>

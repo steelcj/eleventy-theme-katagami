@@ -1,6 +1,7 @@
 // Checks the built pages in _site/ against the theme's markup rules, and the fixture
 // pages against their expected output. Run after a build: npm run build && npm run check.
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
@@ -67,12 +68,17 @@ const franceExpectations = [
 const locales = yaml.load(fs.readFileSync("src/_data/locales.yaml", "utf8"));
 const tags = Object.fromEntries(locales.map((locale) => [locale.code, locale.tag ?? locale.code]));
 
+// Hashes of the inline scripts allowed by a future Content Security Policy.
+const cspFile = path.join(outputDir, "assets/csp.json");
+const cspHashes = fs.existsSync(cspFile) ? JSON.parse(fs.readFileSync(cspFile, "utf8"))["script-src"] : [];
+
 const partClasses = ["skip-link", "logo", "main-nav", "language-switcher", "breadcrumbs", "section-nav", "footer-text", "site-actions", "colophon"];
 
+// Pages only: assets/ holds HTML fragments, such as Infusion's panel templates.
 function htmlFiles(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) return htmlFiles(file);
+    if (entry.isDirectory()) return file === path.join(outputDir, "assets") ? [] : htmlFiles(file);
     return file.endsWith(".html") ? [file] : [];
   });
 }
@@ -99,7 +105,15 @@ for (const file of files) {
   }
 
   // Every page loads one font set and preloads exactly one font file, which must exist.
-  if (!/<link rel="stylesheet" href="\/assets\/css\/fonts\/[a-z-]+\.css" id="font-set">/.test(html)) report("no font set stylesheet");
+  if (!/<link rel="stylesheet" href="\/assets\/css\/fonts\/[a-z-]+\.css" id="font-set"[^>]*>/.test(html)) report("no font set stylesheet");
+
+  // The only inline script is the preferences script, whose hash is in assets/csp.json.
+  const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  if (inline.length !== 1) report(`${inline.length} inline scripts, expected 1`);
+  for (const script of inline) {
+    const hash = `'sha256-${crypto.createHash("sha256").update(script).digest("base64")}'`;
+    if (!cspHashes.includes(hash)) report(`inline script ${hash} is not in assets/csp.json`);
+  }
   const preloads = [...html.matchAll(/<link rel="preload" href="([^"]+)" as="font"/g)].map((match) => match[1]);
   if (preloads.length !== 1) report(`${preloads.length} font preloads, expected 1`);
   for (const href of preloads) {

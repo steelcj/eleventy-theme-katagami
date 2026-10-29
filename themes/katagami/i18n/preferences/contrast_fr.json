@@ -1,0 +1,8 @@
+{
+    "label": "Contraste",
+    "description": "Changer les couleurs du texte et du fond",
+    "contrast-default": "Suivre le réglage de mon appareil",
+    "contrast-site": "Les couleurs du site",
+    "contrast-high": "Contraste élevé",
+    "contrast-dark": "Sombre"
+}

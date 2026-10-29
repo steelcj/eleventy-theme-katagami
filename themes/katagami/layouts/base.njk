@@ -16,16 +16,9 @@
   {%- set fontScript = "arabic" if (locales | localeFor(lang)).fontSet == "arabic" else "latin" %}
   <link rel="preload" href="{{ katagami.fontSets.preload[fontSet][fontScript] }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/theme.css">
-  <link rel="stylesheet" href="/assets/css/fonts/{{ fontSet }}.css" id="font-set">
-  {#- A reader's own choice of font set, made with the ui-options part, applies before the page is drawn. #}
-  <script>
-    try {
-      var chosen = localStorage.getItem("katagami-font-set");
-      if ({{ katagami.fontSets.names | dump | safe }}.indexOf(chosen) > -1) {
-        document.getElementById("font-set").href = "/assets/css/fonts/" + chosen + ".css";
-      }
-    } catch (error) {}
-  </script>
+  <link rel="stylesheet" href="/assets/css/fonts/{{ fontSet }}.css" id="font-set" data-font-sets="{{ katagami.fontSets.names | join(' ') }}">
+  {#- The reader's preferences, from the ui-options part, apply before the page is drawn. #}
+  <script>{% include "partials/preferences-head.js" %}</script>
   {%- block head %}{% endblock %}
 </head>
 <body>

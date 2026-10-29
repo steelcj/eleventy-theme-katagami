@@ -9,7 +9,7 @@ html {
   color: var(--color-text);
   background-color: var(--color-background);
   font-family: var(--font-body);
-  font-size: 100%;
+  font-size: calc(100% * var(--text-size));
   line-height: var(--line);
   text-size-adjust: 100%;
 
@@ -21,6 +21,18 @@ html {
 
 body {
   margin: 0;
+}
+
+/* Readers who ask for less motion get none. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Headings: line heights and margins in whole baselines, so the body text after a
@@ -86,7 +98,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-accent);
+  color: var(--color-link-hover);
 }
 
 :focus-visible {

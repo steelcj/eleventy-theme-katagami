@@ -1,0 +1,8 @@
+{
+    "label": "Contrast",
+    "description": "Change text and background colours",
+    "contrast-default": "Follow my device's setting",
+    "contrast-site": "The site's colours",
+    "contrast-high": "High contrast",
+    "contrast-dark": "Dark"
+}

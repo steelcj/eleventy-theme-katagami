@@ -8,12 +8,23 @@
   --color-stone: #5e584f;
   --color-rule: #d9d0bf;
   --color-surface: #faf7f0;
+  --color-persimmon-deep: #a8461f;
+
+  /* What the colours are for. The contrast schemes below change these only. Text
+     colours are at least 4.5:1 against the background and surface; the accent, used
+     for rules and focus rings, at least 3:1. */
   --color-text: var(--color-sumi);
   --color-text-muted: var(--color-stone);
   --color-background: var(--color-washi);
   --color-link: var(--color-indigo);
+  --color-link-hover: var(--color-persimmon-deep);
   --color-accent: var(--color-persimmon);
   --color-focus: var(--color-persimmon);
+  --color-button: var(--color-link);
+  --color-button-hover: var(--color-link-hover);
+  --color-button-text: var(--color-background);
+
+  color-scheme: light;
 
   /* Fonts: system fonts, until the font set's CSS in assets/css/fonts/ replaces the
      heading and body tokens. --font-system stays a system stack, for text in another
@@ -27,6 +38,12 @@
      size. --step--1 is half a step down rather than a whole one, so that small text
      stays legible. */
   --ratio: 1.25;
+
+  /* Reader preferences: text size scales the root font size, and so every size in rem;
+     line spacing scales the baseline, and so every line height and vertical margin. The
+     page head sets these from the reader's saved preferences. */
+  --text-size: 1;
+  --line-space: 1;
   --step--1: 0.875rem;
   --step-0: 1rem;
   --step-1: calc(var(--step-0) * var(--ratio));
@@ -36,8 +53,11 @@
   /* Vertical rhythm: every line height and every vertical margin between blocks of
      text is a whole number of baselines, so that lines keep to one grid down the page.
      A line of body text is four baselines. Arabic text, set slightly larger, takes five,
-     and headings in Arabic one more than in Latin text, for its taller letters and marks. */
-  --baseline: 0.375rem;
+     and headings in Arabic one more than in Latin text, for its taller letters and marks.
+     The baseline is rounded to a whole pixel, so that larger text and line spacing do not
+     add up rounding errors down the page. Block spacing in the text flow is in baselines,
+     not rem, so that it scales with line spacing. */
+  --baseline: round(calc(0.375rem * var(--line-space)), 1px);
   --line: calc(var(--baseline) * 4);
   --line-arabic: calc(var(--baseline) * 5);
   --heading-extra-lines: 0;
@@ -58,5 +78,65 @@
   --gutter: var(--space-s);
   --rule-width: 1px;
   --icon-size: 0.75em;
-  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3l5 5-5 5' fill='none' stroke='black' stroke-width='1.5'/%3E%3C/svg%3E");
+  /* A file rather than a data: URL, so a Content Security Policy needs no img-src data:. */
+  --icon-chevron: url("/assets/img/chevron.svg");
+}
+
+/* Contrast schemes. A reader's choice in the preferences panel sets data-contrast on the
+   html element: "site" keeps the site's colours, "high" and "dark" switch scheme.
+   Without a choice, the reader's system settings decide, also without JavaScript. */
+:root[data-contrast="high"] {
+  --color-text: #000;
+  --color-text-muted: #1f1f1f;
+  --color-background: #fff;
+  --color-surface: #fff;
+  --color-link: #0a2a5c;
+  --color-link-hover: #9a3412;
+  --color-accent: #9a3412;
+  --color-focus: #9a3412;
+  --color-rule: #000;
+}
+
+:root[data-contrast="dark"] {
+  --color-text: #f2ede3;
+  --color-text-muted: #c8bfb0;
+  --color-background: #1c1a17;
+  --color-surface: #26231f;
+  --color-link: #a9c2e8;
+  --color-link-hover: #f0956b;
+  --color-accent: #f0956b;
+  --color-focus: #f0956b;
+  --color-rule: #4a453d;
+
+  color-scheme: dark;
+}
+
+@media (prefers-contrast: more) {
+  :root:not([data-contrast]) {
+    --color-text: #000;
+    --color-text-muted: #1f1f1f;
+    --color-background: #fff;
+    --color-surface: #fff;
+    --color-link: #0a2a5c;
+    --color-link-hover: #9a3412;
+    --color-accent: #9a3412;
+    --color-focus: #9a3412;
+    --color-rule: #000;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-contrast]) {
+    --color-text: #f2ede3;
+    --color-text-muted: #c8bfb0;
+    --color-background: #1c1a17;
+    --color-surface: #26231f;
+    --color-link: #a9c2e8;
+    --color-link-hover: #f0956b;
+    --color-accent: #f0956b;
+    --color-focus: #f0956b;
+    --color-rule: #4a453d;
+
+    color-scheme: dark;
+  }
 }

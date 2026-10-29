@@ -4,6 +4,39 @@ All notable changes to this project are recorded here. The format follows Keep a
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-29
+
+Phase 5: reader preferences.
+
+### Added
+
+- Fluid Infusion UI Options in a panel below the header, opened by a Preferences button, for text size, line spacing, fonts and contrast. Infusion 4.8.0 is copied into `assets/vendor/infusion/` by `npm run vendor-infusion` at the version pinned in `theme.yaml`, and loads only when a reader first opens the panel.
+- Enactors that map the preferences onto the theme's tokens: text size on the root font size, line spacing on the baseline unit, fonts on the font set's stylesheet, and contrast on a `data-contrast` attribute.
+- Contrast that follows the reader's device by default, with the site's colours, a high-contrast scheme and a dark scheme as choices. `prefers-color-scheme: dark` and `prefers-contrast: more` choose the schemes without JavaScript, and `prefers-reduced-motion` turns off animation.
+- A local storage store for UI Options: preferences are kept under `katagami-preferences` as `{ "version": 1, … }` with only non-default values, applied before the page is drawn by a static head script, cleared by reset, and safe when storage is blocked. The phase 4 `katagami-font-set` choice moves into it once.
+- `assets/csp.json`, written at each build, with the minimum Content Security Policy the site works under: `default-src 'self'`, with `script-src` allowing the head script by hash and `style-src` the one style Infusion's core adds, also by hash. No `'unsafe-eval'` or `'unsafe-inline'`. `npm run check` confirms every page's inline script matches, and `npm run check:browser` opens the panel under the policy and fails on any violation.
+- The panel's button has the theme's own fixed label, "Display preferences", "Préférences d’affichage" and an Arabic label, with `aria-expanded` for its state; Infusion's `aria-pressed` and changing labels are removed.
+- When Infusion fails to load, the button shows a short, translated message, a status message announces it, and the page is unaffected; clicking again retries.
+- Accessibility audits with axe-core 4.14.0 in `npm run check:browser`: home pages, text pages and pages with images in English, French and Arabic, under the site's colours, high contrast and dark, and with the panel open. All pass with no violations.
+- `npm run vendor-infusion` copies the licences of Infusion and of jQuery and fastXmlPull, bundled in the UI Options build, with Infusion's authors file, into `assets/vendor/infusion/licenses/`.
+- Messages for the theme's font set and contrast choices in English, French and Arabic, and Arabic messages for the whole panel, in `i18n/preferences/`.
+- `npm run check:browser` tests the panel: loading on demand, each preference and what is saved, saved preferences on the next page, reset, the move from the old key, blocked storage, system settings and explicit choices, the French and Arabic panels, and the vertical rhythm at larger text and line spacing.
+
+### Changed
+
+- The phase 4 font select and `font-preference.js` are replaced by the preferences panel.
+- The baseline is rounded to a whole pixel, and block spacing in the text flow is in baselines, so the grid holds at any text size and line spacing.
+- Buttons and link hover colours use semantic colour tokens, so they follow the contrast schemes.
+- The breadcrumb separator is an SVG file instead of a `data:` URL, so a Content Security Policy needs nothing beyond `'self'` for images.
+
+### Specification
+
+The specification is now version 0.7.0: it records the reader preferences as built, the minimum Content Security Policy, the panel button's fixed label and failed-load message, the accessibility audits, the note that upgrading Infusion requires rerunning the browser checks, and the panel's Arabic strings on the Arabic reader's review list. Phase 5 is marked done.
+
+### Fixed
+
+- Link text on hover and the call-to-action button's hover colour now meet WCAG AA contrast (5.2:1); the persimmon accent was 4.0:1 against the background.
+
 ## [0.4.0] - 2026-10-28
 
 Phase 4: font sets and the type system, and preparation.

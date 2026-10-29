@@ -1,0 +1,8 @@
+{
+    "label": "التباين",
+    "description": "غيّر ألوان النص والخلفية",
+    "contrast-default": "اتباع إعداد جهازي",
+    "contrast-site": "ألوان الموقع",
+    "contrast-high": "تباين عالٍ",
+    "contrast-dark": "داكن"
+}

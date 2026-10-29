@@ -12,7 +12,6 @@ unknownView: Unknown view
 title: Title
 description: Description
 date: Date
-fontSet: Font
-fontSetHyperlegible: Hyperlegible
-fontSetMincho: Mincho
-fontSetGothic: Gothic
+reset: Reset
+preferences: Display preferences
+preferencesFailed: Preferences couldn’t load
