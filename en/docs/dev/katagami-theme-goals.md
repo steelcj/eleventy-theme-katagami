@@ -41,6 +41,7 @@ Eleventy's input directory is `src/`, which holds site content only. Eleventy's 
 eleventy-theme-katagami/
 ├── eleventy.config.js      sets directories, loads the theme plugin
 ├── package.json
+├── .nvmrc                  selects Node 24
 ├── CLAUDE.md               standing rules for Claude Code sessions
 ├── README.md
 ├── LICENSE.md
@@ -49,16 +50,18 @@ eleventy-theme-katagami/
 ├── en/
 │   └── docs/
 │       └── dev/            project documentation, including this specification
+│           └── artifacts/  earlier versions of the specification, named by version
+├── scripts/                page and browser checks, fixture images, font and Infusion vendoring
 ├── src/                    Eleventy input: site content only
 │   ├── _data/              site, locales, regions, navigation per language
 │   ├── en/
 │   │   ├── index.md
-│   │   ├── _site/          footer, announcement, colophon
+│   │   ├── _site/          footer, colophon
 │   │   └── services/
 │   ├── fr/
 │   ├── ar/                 right-to-left fixture, excluded from the language switcher
 │   └── media/              uploaded images and files
-├── site/                   overrides of theme files, used to test shadowing
+├── site/                   overrides of theme files, used to test shadowing, and an optional index.js
 ├── themes/
 │   └── katagami/           the theme
 └── _site/                  build output, not committed
@@ -74,7 +77,7 @@ Consequences of using `src/` as input:
 
 ```text
 themes/katagami/
-├── theme.yaml               manifest: name, version, license, Eleventy range, regions, blocks, views, fences, font sets
+├── theme.yaml               manifest: name, version, license, Eleventy range, regions, blocks, views, fences, font sets, preferences, fonts, images
 ├── index.js                 plugin: loader, layout stubs, filters, shortcodes, collections, passthrough, virtual pages
 ├── typography.js            markdown-it plugin: quotation marks by language, French spacing by locale tag
 ├── README.md
@@ -92,39 +95,40 @@ themes/katagami/
 │   │       ├── mincho.css
 │   │       └── gothic.css
 │   ├── fonts/               one folder per family, WOFF2, subset, with OFL.txt
-│   ├── img/
+│   ├── img/                 chevron.svg, the breadcrumb separator
 │   ├── js/
 │   │   ├── preferences.js       shows the preferences part, loads Infusion on demand
 │   │   ├── preferences-uio.js   the theme's store, enactors and choices for UI Options
-│   │   ├── search.js
-│   │   └── theme.js
+│   │   ├── search.js        planned
+│   │   └── theme.js         planned
 │   └── vendor/
 │       └── infusion/            UI Options, copied by scripts/vendor-infusion.mjs
 ├── layouts/
 │   ├── base.njk             skeleton with named regions, defines blocks
-│   ├── home.njk
+│   ├── home.njk             planned
 │   ├── page.njk             extends base: title, lead and the blocks list
 │   ├── section.njk          extends base: folder intro, then the selected view of its children
-│   └── service.njk
+│   └── service.njk          planned
 ├── parts/                   one partial per region item
 │   ├── skip-links.njk
-│   ├── announcement.njk
+│   ├── announcement.njk     planned
 │   ├── logo.njk
 │   ├── main-nav.njk
-│   ├── site-search.njk
+│   ├── site-search.njk      planned
 │   ├── language-switcher.njk
 │   ├── ui-options.njk
 │   ├── breadcrumbs.njk
 │   ├── section-nav.njk
-│   ├── byline.njk
-│   ├── related-items.njk
+│   ├── byline.njk           planned
+│   ├── related-items.njk    planned
 │   ├── footer-text.njk
 │   ├── site-actions.njk
 │   └── colophon.njk
 ├── partials/                pieces shared by layouts, blocks and views, never placed in regions
 │   ├── block-list.njk
 │   ├── picture.njk
-│   └── lead-image.njk
+│   ├── lead-image.njk
+│   └── preferences-head.js  the head script that applies saved preferences
 ├── blocks/                  one partial per block type
 │   ├── text.njk
 │   ├── image.njk
@@ -137,22 +141,24 @@ themes/katagami/
 │   ├── summary.njk
 │   ├── tabular.njk
 │   └── album.njk
-├── fences/                  renderers for text formats in code fences
+├── fences/                  deferred: renderers for text formats in code fences
 │   ├── mermaid.js
 │   └── csv.js
 ├── defaults/                fallback data, overridden by the site's src/_data/
 │   ├── regions.yaml
-│   └── navigation.yaml
+│   └── navigation.yaml      planned
 ├── i18n/                    theme interface strings
 │   ├── en.yaml
 │   ├── fr.yaml
-│   └── ar.yaml
+│   ├── ar.yaml
+│   └── preferences/         messages for the preferences panel, published beside Infusion's
 ├── templates/               theme-provided pages, registered by index.js
-│   ├── sitemap.njk
-│   ├── 404.njk
-│   ├── feed.njk
-│   ├── robots.njk
-│   └── content-index.njk
+│   ├── languages.njk        the language chooser at /
+│   ├── sitemap.njk          planned
+│   ├── 404.njk              planned
+│   ├── feed.njk             planned
+│   ├── robots.njk           planned
+│   └── content-index.njk    planned, the JSON index
 └── cms/                     deferred: CMS field fragments, for the CMS adapter
     ├── behaviors.yaml
     └── blocks.yaml
@@ -211,14 +217,14 @@ The base layout defines regions and renders an ordered list of parts in each. Th
 
 ```yaml
 # src/_data/regions.yaml
-header: [skip-links, announcement, logo, main-nav, site-search, language-switcher, ui-options]
+header: [skip-links, logo, main-nav, language-switcher, ui-options]
 abovecontent: [breadcrumbs]
-belowcontent: [related-items]
 sidebar: [section-nav]
+belowcontent: []
 footer: [footer-text, site-actions, colophon]
 ```
 
-The theme's `defaults/regions.yaml` applies when the site provides nothing. The sidebar sits at the inline end of the content on wide screens and moves below the content on phones.
+The planned parts, `announcement` and `site-search` in the header and `related-items` below the content, join these lists when they are built. The theme's `defaults/regions.yaml` applies to any region the site leaves out, and an empty list removes a region. The sidebar sits at the inline end of the content on wide screens and moves below the content on phones.
 
 A folder or page adjusts regions with `regionOverrides`, following Plone's portlet inheritance:
 
@@ -242,7 +248,7 @@ Site-wide text lives in short Markdown files, one set per language:
 ```text
 src/en/_site/
 ├── footer.md           footer text in the body, structured links in front matter
-├── announcement.md     optional banner above the header
+├── announcement.md     optional banner above the header, planned
 └── colophon.md         licence and credits line
 ```
 
@@ -357,7 +363,7 @@ Arabic is built as a required fixture locale. It is the most demanding common ri
 - Text of unknown direction, such as titles in listings and author names, is wrapped in `<bdi>` or given `dir="auto"`, and code blocks are always left-to-right.
 - An Arabic companion font (Noto Naskh Arabic with the Mincho set; IBM Plex Sans Arabic with the Gothic and Hyperlegible sets) is selected per character with `unicode-range`. A locale with `fontSet: arabic` preloads its companion instead of the Latin body font. Arabic text gets no letter-spacing, no faux italics, and a slightly larger size and line height.
 - Dates and numbers are formatted with `Intl.DateTimeFormat` and `Intl.NumberFormat`.
-- The fixture covers a home page, a section, a page with blocks, a listing and a page with mixed-direction text, is built in CI, and stays out of the production language switcher until real, human-translated content exists.
+- The fixture covers a home page, a section, a page with blocks, a listing and a page with mixed-direction text, is built by every build, development and production, and stays out of the production language switcher and chooser until an Arabic reader has reviewed it and real, human-translated content exists. The repository has no CI service yet, so the checks run locally; a CI workflow is part of the production-essentials phase.
 
 ## Blocks
 
@@ -429,10 +435,13 @@ Egress emits a directory tree with an `index.md` per folder and rich front matte
 3. Blocks and views, including the folder-page behavior of section navigation. Done.
 4. Font sets and the type system. Done.
 5. Reader preferences: Fluid Infusion UI Options for fonts, contrast, text size and line spacing. Done.
-6. The CMS adapter: CMS configuration and the `cms/` merge. Deferred, see CMS support.
-7. Fences, starting with Mermaid build-time rendering. Deferred.
+6. Production essentials, the next phase: the 404 page, sitemap, robots file, feed, JSON content index, inline-tag sanitizer and containers, assessed with their conditions for done in [Katagami: Production Essentials](../theme/radar/assess/production-essentials.md), and a CI workflow that runs `npm run build`, `npm run lint`, `npm run check` and `npm run check:browser` on every push, once the repository has a remote.
+7. The CMS adapter: CMS configuration and the `cms/` merge. Deferred, see CMS support.
+8. Fences, starting with Mermaid build-time rendering. Deferred.
 
 Each phase ends with a clean build of all three locales. Work paused after phase 5, at release 0.5.1. Also deferred: the embed block, localized folder names with identifier pairing, and redirects.
+
+Not yet in any phase, and marked planned in the theme directory: the announcement banner, site search, the byline and related-items parts, the home and service layouts, and a fallback navigation in `defaults/`. The assessment places them later, as client sites need them.
 
 ## Arabic reader's review
 
