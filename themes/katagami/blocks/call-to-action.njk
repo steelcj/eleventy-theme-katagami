@@ -1,10 +1,10 @@
 {#- Call to action: a heading, a short Markdown body and one prominent link. #}
 <div class="block block--call-to-action">
   {%- if block.heading %}
-  <h{{ headingLevel }}>{{ block.heading }}</h{{ headingLevel }}>
+  <h{{ headingLevel }}>{{ block.heading | typeset(langTag) | safe }}</h{{ headingLevel }}>
   {%- endif %}
   {%- if block.body %}
-  {{ block.body | markdown | safe }}
+  {{ block.body | markdown(langTag) | safe }}
   {%- endif %}
   {%- if block.link and block.label %}
   <p><a class="button" href="{{ block.link }}"><bdi>{{ block.label }}</bdi></a></p>

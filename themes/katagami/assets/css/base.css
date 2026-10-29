@@ -10,47 +10,73 @@ html {
   background-color: var(--color-background);
   font-family: var(--font-body);
   font-size: 100%;
-  line-height: var(--line-height);
+  line-height: var(--line);
   text-size-adjust: 100%;
+
+  /* Real italics may be missing, but faux small caps are never drawn: small caps appear
+     only where a font has them. Every font set has a real bold. */
+  font-synthesis: style;
+  font-kerning: normal;
 }
 
 body {
   margin: 0;
 }
 
+/* Headings: line heights and margins in whole baselines, so the body text after a
+   heading stays on the grid. */
 h1,
 h2,
 h3,
 h4 {
   font-family: var(--font-heading);
-  line-height: var(--line-height-heading);
   text-wrap: balance;
-  margin-block: var(--space-l) var(--space-s);
 }
 
 h1 {
   font-size: var(--step-3);
-  margin-block-start: 0;
+  line-height: calc(var(--baseline) * (6 + var(--heading-extra-lines)));
+  margin-block: 0 var(--line);
 }
 
 h2 {
   font-size: var(--step-2);
+  line-height: calc(var(--baseline) * (5 + var(--heading-extra-lines)));
+  margin-block: calc(var(--line) * 2) calc(var(--baseline) * 2);
 }
 
 h3 {
   font-size: var(--step-1);
+  line-height: calc(var(--baseline) * (4 + var(--heading-extra-lines)));
+  margin-block: calc(var(--line) * 1.5) var(--baseline);
 }
 
+h4 {
+  font-size: var(--step-0);
+  line-height: calc(var(--baseline) * (4 + var(--heading-extra-lines)));
+  margin-block: var(--line) 0;
+}
+
+/* Body text: one line of space between paragraphs, and wrapping that avoids short
+   last lines. */
 p,
-li {
+li,
+dd,
+blockquote,
+figcaption,
+td {
   text-wrap: pretty;
 }
 
 p,
 ul,
 ol,
-pre {
-  margin-block: 0 var(--space-s);
+dl,
+pre,
+blockquote,
+figure,
+table {
+  margin-block: 0 var(--line);
 }
 
 a {
@@ -71,22 +97,30 @@ a:hover {
 img {
   max-inline-size: 100%;
   block-size: auto;
+
   /* Holds the image's space while it loads. */
   background-color: var(--color-surface);
 }
 
 table {
   border-collapse: collapse;
-  margin-block: 0 var(--space-m);
 }
 
+/* Table figures line up in columns, in fonts with tabular figures; headings are in
+   small caps where the font has them. Rules are inset shadows, which take no space, so
+   rows stay whole numbers of baselines. */
 th,
 td {
-  padding-block: var(--space-xs);
+  padding-block: var(--baseline);
   padding-inline: 0 var(--space-m);
-  border-block-end: var(--rule-width) solid var(--color-rule);
+  box-shadow: inset 0 calc(-1 * var(--rule-width)) 0 var(--color-rule);
   text-align: start;
   vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+
+thead th {
+  font-variant-caps: all-small-caps;
 }
 
 /* Column alignment from Markdown tables, in logical terms. */
@@ -108,17 +142,32 @@ pre {
   font-size: var(--step--1);
 }
 
+/* Inline code is set in another font, on its own baseline; a line height of 1 keeps it
+   inside the line, so the line stays a whole number of baselines. */
+:not(pre) > code {
+  line-height: 1;
+}
+
 pre {
   overflow: auto;
-  padding: var(--space-s);
-  border: var(--rule-width) solid var(--color-rule);
+  padding-block: calc(var(--baseline) * 2);
+  padding-inline: var(--space-s);
+  outline: var(--rule-width) solid var(--color-rule);
+  outline-offset: calc(-1 * var(--rule-width));
   text-align: start;
 }
 
-/* Arabic: no letter-spacing, no faux italics, a slightly larger size and line height. */
+/* Arabic: a slightly larger size with five-baseline lines, an extra baseline in
+   headings, no letter-spacing and no faux italics. Set on the root, so that headings
+   keep their own line heights. */
+:root:lang(ar) {
+  --heading-extra-lines: 1;
+
+  line-height: var(--line-arabic);
+}
+
 :lang(ar) {
   letter-spacing: normal;
-  line-height: var(--line-height-arabic);
 }
 
 :lang(ar) body {

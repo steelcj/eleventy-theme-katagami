@@ -3,13 +3,13 @@
     children. On a top-level section's own page there is nothing to show beyond the main
     menu, so the part renders nothing, as it does when every page in the section is
     hidden. Pages with excludeFromNav: true are left out. #}
-{%- macro navList(entries, currentKey) %}
+{%- macro navList(entries, currentKey, langTag) %}
 <ul>
   {%- for entry in entries | rejectattr("hidden") %}
   <li>
-    <a href="{{ entry.url }}"{% if entry.key == currentKey %} aria-current="page"{% endif %}><bdi>{{ entry.title }}</bdi></a>
+    <a href="{{ entry.url }}"{% if entry.key == currentKey %} aria-current="page"{% endif %}><bdi>{{ entry.title | typeset(langTag) | safe }}</bdi></a>
     {%- if (entry.children | rejectattr("hidden") | length) and entry.key != currentKey and (currentKey + "/").startsWith(entry.key + "/") %}
-    {{ navList(entry.children, currentKey) }}
+    {{ navList(entry.children, currentKey, langTag) }}
     {%- endif %}
   </li>
   {%- endfor %}
@@ -21,8 +21,8 @@
 {%- set entries = collections.all | eleventyNavigation(section.key) %}
 {%- if entries | rejectattr("hidden") | length %}
 <nav class="section-nav" aria-label="{{ 'sectionNavigation' | t(lang) }}">
-  <p class="section-nav__title"><a href="{{ section.url }}"><bdi>{{ section.title }}</bdi></a></p>
-  {{ navList(entries, eleventyNavigation.key) }}
+  <p class="section-nav__title"><a href="{{ section.url }}"><bdi>{{ section.title | typeset(langTag) | safe }}</bdi></a></p>
+  {{ navList(entries, eleventyNavigation.key, langTag) }}
 </nav>
 {%- endif %}
 {%- endif %}

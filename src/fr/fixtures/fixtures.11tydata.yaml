@@ -1,0 +1,2 @@
+# Pages that test theme behaviour, hidden from menus.
+excludeFromNav: true

@@ -6,7 +6,7 @@
 <nav class="main-nav" aria-label="{{ 'mainNavigation' | t(lang) }}">
   <ul>
     {%- for item in items %}
-    <li><a href="{{ item.url }}"{% if item.url == page.url %} aria-current="page"{% elif item.url == sectionUrl %} aria-current="true"{% endif %}><bdi>{{ item.label }}</bdi></a></li>
+    <li><a href="{{ item.url }}"{% if item.url == page.url %} aria-current="page"{% elif item.url == sectionUrl %} aria-current="true"{% endif %}><bdi>{{ item.label | typeset(langTag) | safe }}</bdi></a></li>
     {%- endfor %}
   </ul>
 </nav>

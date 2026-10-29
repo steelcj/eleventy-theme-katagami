@@ -9,9 +9,9 @@
     {%- set imgEager = false %}
     {% include "partials/picture.njk" %}
     {%- endif %}
-    <h{{ itemHeadingLevel }} class="card__title"><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></h{{ itemHeadingLevel }}>
+    <h{{ itemHeadingLevel }} class="card__title"><a href="{{ item.url }}"><bdi>{{ item.data.title | typeset(langTag) | safe }}</bdi></a></h{{ itemHeadingLevel }}>
     {%- if item.data.description %}
-    <p>{{ item.data.description }}</p>
+    <p>{{ item.data.description | typeset(langTag) | safe }}</p>
     {%- endif %}
   </li>
   {%- endfor %}

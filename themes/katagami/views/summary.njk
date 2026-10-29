@@ -10,12 +10,12 @@
     {% include "partials/picture.njk" %}
     {%- endif %}
     <div class="summary-item__text">
-      <h{{ itemHeadingLevel }}><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></h{{ itemHeadingLevel }}>
+      <h{{ itemHeadingLevel }}><a href="{{ item.url }}"><bdi>{{ item.data.title | typeset(langTag) | safe }}</bdi></a></h{{ itemHeadingLevel }}>
       {%- if item.data.date %}
-      <p class="summary-item__date"><time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(lang) }}</time></p>
+      <p class="summary-item__date"><time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(langTag) }}</time></p>
       {%- endif %}
       {%- if item.data.description %}
-      <p>{{ item.data.description }}</p>
+      <p>{{ item.data.description | typeset(langTag) | safe }}</p>
       {%- endif %}
     </div>
   </article>

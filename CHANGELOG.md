@@ -4,7 +4,9 @@ All notable changes to this project are recorded here. The format follows Keep a
 
 ## [Unreleased]
 
-Phase 4: font sets, and preparation.
+## [0.4.0] - 2026-10-28
+
+Phase 4: font sets and the type system, and preparation.
 
 ### Added
 
@@ -13,7 +15,16 @@ Phase 4: font sets, and preparation.
 - The site's font set from `fontSet` in `site.yaml`. Each page loads only that set's CSS and preloads one font file: the body font's regular weight, or the Arabic companion's in a locale with `fontSet: arabic`.
 - A `ui-options` part in the header that lets readers choose a font set, with `assets/js/font-preference.js`. The control appears only with JavaScript; the choice is kept in local storage and applied by a short script in the page head before the page is drawn.
 - `npm run check` requires one font set stylesheet and one existing preloaded font on every page.
-
+- The type system: a modular scale with a ratio of 1.25 computed from a `--ratio` token; vertical rhythm from one 0.375rem baseline, with every line height and vertical text margin a whole number of baselines, including Arabic's larger lines and taller headings; `text-wrap: pretty` extended to captions, quotations and table cells; tabular figures in tables; small caps in table headings only where a font has them, with faux small caps disabled.
+- Locale-aware typography in `themes/katagami/typography.js`, a markdown-it plugin: quotation marks for the page's language, and French spacing by locale tag, Quebec's for `fr-CA` and France's for other French tags, never in code, URLs or times. A `typeset` filter applies the same rules to titles, descriptions, headings, card text, breadcrumbs and section navigation.
+- A `tag` field for locales, such as `fr-CA`, exposed to pages as `langTag` and used for the `lang` attribute, `hreflang`, dates and typography, while folders and URLs keep the short `code`. The fixture's French locale is `fr-CA`.
+- A French typography fixture at `/fr/fixtures/typographie/`, with `npm run check` comparing its output, and checks of France's conventions on the spacing function itself.
+- `npm run check:browser` and `scripts/check-browser.mjs`, which test the built site in Playwright's Chromium, installed with `npx playwright install chromium`: the font set switch and its persistence, the page without JavaScript, which fonts each page downloads, and the vertical rhythm of a text page in every font set. `npm run check` stays browser-free.
+- `scripts/vendor-fonts.mjs` refuses a version range and confirms each fetched package is the pinned version.
+- Titles and descriptions are plain text everywhere they appear, including the page title, meta description and navigation labels: smart punctuation and French spacing, but no Markdown and no HTML. A fixture at `/en/fixtures/titles/` checks this.
+- `npm run check` requires every page in a language folder to carry its locale's full tag, such as `lang="fr-CA"`, and every `hreflang` to be a full tag.
+- Images in the text flow keep the baseline grid: the theme reads each image's proportions from `src/media/` with sharp before the build, gives it a ratio class, writes `assets/css/image-ratios.css`, and rounds the image's height up to a whole baseline, so the text after it returns to the grid. Card images and thumbnails are rounded the same way.
+- An Arabic typography fixture at `/ar/fixtures/typography/`. The browser rhythm check now covers Arabic and pages with images, cards, albums, summaries and tables, in every font set at phone and desktop widths, with no allowance beyond sub-pixel rounding.
 - Stubs for layouts that only the site has, in `site/layouts/`.
 - `site/index.js`, an optional extension point for site-only build code, added as a plugin after the theme when present. It must not set directories.
 - `npm run fixture-images` and `scripts/make-fixture-images.mjs`, which regenerate the fixture images byte for byte.
@@ -24,10 +35,35 @@ Phase 4: font sets, and preparation.
 
 ### Changed
 
+- Language names in the language switcher and chooser are set in a system font stack, so no page downloads a web font just to show another language's name.
+- Paragraphs, lists, tables and blocks are spaced in whole lines of the baseline grid instead of fixed rem values.
+- Rules on cards, list and summary items, table cells, code blocks and unknown-block placeholders are drawn as outlines or inset shadows, which take no space.
+- `sharp` is a runtime dependency, since the theme reads image proportions with it.
 - Section navigation does not render when every page in the section is hidden from navigation.
 - `block-list`, `picture` and `lead-image` moved from `parts/` to a new `partials/` folder, so `parts/` holds only items placed in regions.
 - stylelint 17 and `stylelint-config-recommended` 18, with the same logical-property rules.
 - `sharp` is a direct development dependency, used by the fixture image script.
+
+### Fixed
+
+- Teaser images run to the card's edges again; a block's first-child margin rule had overridden the card's image bleed.
+- On Arabic pages the Arabic line height no longer overrides heading line heights.
+- The colophon's "Theme:" label follows French spacing.
+- Summary thumbnails and inline code no longer add a pixel to their lines.
+
+### Specification
+
+The specification in `en/docs/dev/katagami-theme-goals.md` is now version 0.6.0:
+
+- `site/index.js` is documented as an optional extension point that runs after the theme plugin and must not set directories, and site-only layouts get stubs.
+- `partials/` is added to the theme directory.
+- The font set table records the chosen fonts, with Atkinson Hyperlegible Next for body text in every set, and the three font questions are closed; the Arabic one still asks for an Arabic reader's review before the `ar` locale leaves fixture status.
+- Each font set's CSS includes its Arabic companion, so there is no separate `arabic.css`.
+- The type system is described in full: modular scale, measure, vertical rhythm, wrapping, smart punctuation by language, French spacing by locale tag (Quebec for `fr-CA`, France for `fr` and `fr-FR`), and OpenType numerals and small caps where the fonts offer them.
+- Locales gain a `tag` field, and the fixture's French locale is `fr-CA`.
+- A new phase 5, Reader preferences, integrates Fluid Infusion UI Options for fonts, contrast, text size and line spacing; Sveltia and fences become phases 6 and 7.
+- Titles and descriptions are plain text everywhere, including the JSON index and accessible labels.
+- An Arabic reader's review is a checklist: the companion fonts, the inner quotation marks ‹ ›, the digits and the fixture's Arabic text.
 
 ## [0.3.0] - 2026-10-28
 

@@ -2,9 +2,9 @@
 
 {#- Title, lead, lead image, the Markdown body, then the page's blocks. #}
 {% block content %}
-      <h1>{{ title }}</h1>
+      <h1>{{ title | typeset(langTag) | safe }}</h1>
       {%- if description %}
-      <p class="lead">{{ description }}</p>
+      <p class="lead">{{ description | typeset(langTag) | safe }}</p>
       {%- endif %}
       {%- include "partials/lead-image.njk" %}
       {{ content | safe }}

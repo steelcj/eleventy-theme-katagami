@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-28
+
 ### Added
 
+- Plain-text titles with smart punctuation, through the `typeset` filter, in headings, the page title, meta descriptions and navigation.
+- Image ratio classes and `assets/css/image-ratios.css`, generated at build time, so images in the text flow keep the baseline grid.
+- The type system: modular scale, baseline rhythm, wrapping, tabular figures, and small caps only where fonts have them.
+- `typography.js`: quotation marks by language and French spacing by locale tag, for Markdown and, through the `typeset` filter, for titles and other plain-text fields. Locales may set a `tag`, exposed as `langTag`.
 - Font sets Hyperlegible, Mincho and Gothic, generated from `theme.yaml` with their Arabic companions, self-hosted WOFF2 subsets and OFL licences, one preloaded font per page, and a reader's choice through the `ui-options` part and `font-preference.js`.
-
 - Stubs for site-only layouts in `site/layouts/`, and `site/index.js` added as a plugin after the theme when present.
 - Base table styles and Markdown table alignment as `data-align`, styled with logical CSS.
 

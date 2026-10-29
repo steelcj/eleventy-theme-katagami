@@ -2,13 +2,13 @@
 {#- Each region renders its parts first and appears only when they produce something. #}
 {#- The trail from the language's home page to this page, used by navigation parts. #}
 {%- set navTrail = collections.all | eleventyNavigationBreadcrumb(eleventyNavigation.key, { includeSelf: true, allowMissing: true }) %}
-<html lang="{{ lang }}" dir="{{ dir }}">
+<html lang="{{ langTag or lang }}" dir="{{ dir }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
+  <title>{% if title %}{{ title | typeset(langTag) | safe }} · {% endif %}{{ site.name }}</title>
   {%- if description %}
-  <meta name="description" content="{{ description }}">
+  <meta name="description" content="{{ description | typeset(langTag) | safe }}">
   {%- endif %}
   {#- The site's font set, from `fontSet` in site.yaml. Only its CSS loads, and only the
       regular weight of the font the page's text uses most is preloaded. #}

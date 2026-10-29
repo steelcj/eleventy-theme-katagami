@@ -14,8 +14,8 @@
   {%- set imgEager = false %}
   {% include "partials/picture.njk" %}
   {%- endif %}
-  <h{{ headingLevel }} class="card__title"><a href="{{ block.link }}"><bdi>{{ teaserTitle }}</bdi></a></h{{ headingLevel }}>
+  <h{{ headingLevel }} class="card__title"><a href="{{ block.link }}"><bdi>{{ teaserTitle | typeset(langTag) | safe }}</bdi></a></h{{ headingLevel }}>
   {%- if teaserDescription %}
-  <p>{{ teaserDescription }}</p>
+  <p>{{ teaserDescription | typeset(langTag) | safe }}</p>
   {%- endif %}
 </article>

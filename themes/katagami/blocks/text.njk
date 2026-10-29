@@ -1,7 +1,7 @@
 {#- Text: an optional heading and a Markdown body. #}
 <div class="block block--text">
   {%- if block.heading %}
-  <h{{ headingLevel }}>{{ block.heading }}</h{{ headingLevel }}>
+  <h{{ headingLevel }}>{{ block.heading | typeset(langTag) | safe }}</h{{ headingLevel }}>
   {%- endif %}
-  {{ block.body | markdown | safe }}
+  {{ block.body | markdown(langTag) | safe }}
 </div>

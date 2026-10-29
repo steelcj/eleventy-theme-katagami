@@ -3,6 +3,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import yaml from "js-yaml";
+import { frenchSpacing } from "../themes/katagami/typography.js";
 
 const outputDir = process.argv[2] ?? "_site";
 
@@ -14,6 +16,56 @@ const regionExpectations = [
     parts: ["footer-text", "colophon", "logo"],
   },
 ];
+
+// Fixture pages that must contain, or must not contain, these strings.
+const NBSP = "\u00A0";
+const NNBSP = "\u202F";
+const textExpectations = [
+  {
+    // Titles are plain text with smart punctuation: no Markdown, no HTML.
+    page: "en/fixtures/titles/index.html",
+    contains: [
+      "<h1>Plain *titles*, “quotes” &amp; &lt;tags&gt;</h1>",
+      "<title>Plain *titles*, “quotes” &amp; &lt;tags&gt; · Katagami</title>",
+      '<meta name="description" content="A title with **Markdown** syntax, ‘quotes’ &amp; &lt;tags&gt;, shown as plain text.">',
+      '<span aria-current="page"><bdi>Plain *titles*, “quotes” &amp; &lt;tags&gt;</bdi></span>',
+    ],
+    lacks: ["<em>titles</em>", "<strong>Markdown</strong>", "<tags>"],
+  },
+  {
+    page: "fr/fixtures/typographie/index.html",
+    contains: [
+      `Note${NBSP}: le deux-points`,
+      "Vraiment? Oui! Bien sûr; voilà.",
+      "Et sans espace aussi; ça reste ainsi.",
+      `«${NBSP}Guillemets avec espaces${NBSP}» et «${NBSP}guillemets serrés${NBSP}»`,
+      `«${NBSP}Guillemets droits${NBSP}»`,
+      "l’apostrophe",
+      "Il est 12:45",
+      '<a href="https://www.11ty.dev/" dir="ltr">https://www.11ty.dev/</a>',
+      '<code dir="ltr">a ; b : c ?</code>',
+      '<html lang="fr-CA"',
+    ],
+    lacks: [NNBSP],
+  },
+  {
+    page: "en/index.html",
+    contains: ["’", '<html lang="en"'],
+    lacks: ["«"],
+  },
+];
+
+// France's conventions, which no fixture locale uses, checked on the function itself.
+const franceExpectations = [
+  ["Vraiment ? Oui ! Bien sûr ; voilà.", `Vraiment${NNBSP}? Oui${NNBSP}! Bien sûr${NNBSP}; voilà.`],
+  ["Note: texte", `Note${NBSP}: texte`],
+  ["«mot»", `«${NBSP}mot${NBSP}»`],
+  ["12:45 et a?b", "12:45 et a?b"],
+];
+
+// Each locale's full language tag, such as fr-CA, by its code.
+const locales = yaml.load(fs.readFileSync("src/_data/locales.yaml", "utf8"));
+const tags = Object.fromEntries(locales.map((locale) => [locale.code, locale.tag ?? locale.code]));
 
 const partClasses = ["skip-link", "logo", "main-nav", "language-switcher", "breadcrumbs", "section-nav", "footer-text", "site-actions", "colophon"];
 
@@ -33,7 +85,18 @@ for (const file of files) {
   const report = (message) => problems.push(`${path.relative(outputDir, file)}: ${message}`);
 
   // Every page states its language and direction.
-  if (!/<html lang="[a-z-]+" dir="(ltr|rtl)">/.test(html)) report("<html> without lang and dir");
+  if (!/<html lang="[a-z]{2,3}(-[A-Za-z0-9]+)*" dir="(ltr|rtl)">/.test(html)) report("<html> without lang and dir");
+
+  // Pages in a language folder carry their locale's full tag, and links name languages by
+  // their full tags too.
+  const code = path.relative(outputDir, file).split(path.sep)[0];
+  if (tags[code] && !html.includes(`<html lang="${tags[code]}"`)) report(`lang is not ${tags[code]}`);
+  for (const [, hreflang] of html.matchAll(/hreflang="([^"]*)"/g)) {
+    if (!Object.values(tags).includes(hreflang)) report(`hreflang="${hreflang}" is not a locale's full tag`);
+  }
+  for (const [, target, hreflang] of html.matchAll(/href="\/([a-z]+)\/[^"]*"[^>]*hreflang="([^"]*)"/g)) {
+    if (tags[target] && hreflang !== tags[target]) report(`link to /${target}/ has hreflang="${hreflang}", expected ${tags[target]}`);
+  }
 
   // Every page loads one font set and preloads exactly one font file, which must exist.
   if (!/<link rel="stylesheet" href="\/assets\/css\/fonts\/[a-z-]+\.css" id="font-set">/.test(html)) report("no font set stylesheet");
@@ -94,6 +157,23 @@ for (const { page, region, parts } of regionExpectations) {
   const regionHtml = start < 0 ? "" : html.slice(start, next < 0 ? undefined : next);
   const found = [...regionHtml.matchAll(/class="([a-z-]+)"/g)].map((match) => match[1]).filter((name) => partClasses.includes(name));
   if (found.join(",") !== parts.join(",")) problems.push(`${page}: ${region} has [${found.join(", ")}], expected [${parts.join(", ")}]`);
+}
+
+for (const { page, contains = [], lacks = [] } of textExpectations) {
+  const file = path.join(outputDir, page);
+  if (!fs.existsSync(file)) {
+    problems.push(`${page}: fixture page missing`);
+    continue;
+  }
+  const html = fs.readFileSync(file, "utf8");
+  const show = (text) => JSON.stringify(text).replace(/\\u00a0/gi, "⍽").replace(/\\u202f/gi, "·");
+  for (const text of contains) if (!html.includes(text)) problems.push(`${page}: missing ${show(text)}`);
+  for (const text of lacks) if (html.includes(text)) problems.push(`${page}: should not contain ${show(text)}`);
+}
+
+for (const [input, expected] of franceExpectations) {
+  const output = frenchSpacing(input, "france");
+  if (output !== expected) problems.push(`French spacing (France) of ${JSON.stringify(input)} gave ${JSON.stringify(output)}`);
 }
 
 for (const problem of problems) console.log(problem);

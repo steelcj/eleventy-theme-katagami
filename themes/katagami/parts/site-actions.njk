@@ -3,7 +3,7 @@
 <nav class="site-actions" aria-label="{{ 'siteActions' | t(lang) }}">
   <ul>
     {%- for action in actions %}
-    <li><a href="{{ action.url }}"><bdi>{{ action.label }}</bdi></a></li>
+    <li><a href="{{ action.url }}"><bdi>{{ action.label | typeset(langTag) | safe }}</bdi></a></li>
     {%- endfor %}
   </ul>
 </nav>

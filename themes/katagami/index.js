@@ -10,7 +10,9 @@ import markdownIt from "markdown-it";
 import yaml from "js-yaml";
 import matter from "gray-matter";
 import EleventyNavigation from "@11ty/eleventy-navigation";
+import typography from "./typography.js";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
+import sharp from "sharp";
 
 // Loader paths are relative to the repository root, the folder Eleventy runs from.
 const THEME_DIR = path
@@ -30,8 +32,33 @@ function readYaml(file) {
   return fs.existsSync(file) ? yaml.load(fs.readFileSync(file, "utf8")) ?? {} : {};
 }
 
+// The proportions of the images in src/media/, read before each build, such as
+// "/media/seigaiha.jpg" → "3x2". An image in the text flow gets a ratio class, and the
+// CSS rounds its height up to a whole baseline, so the text after it stays on the grid.
+const imageRatios = new Map();
+const RASTER = /\.(jpe?g|png|webp|avif|tiff?)$/i;
+
+function ratioName(width, height) {
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const divisor = gcd(width, height);
+  return `${width / divisor}x${height / divisor}`;
+}
+
+function imageRatioClass(src) {
+  const ratio = imageRatios.get(src);
+  return ratio ? `ratio-${ratio}` : "";
+}
+
 function createMarkdown() {
-  const md = markdownIt({ html: false, linkify: false, typographer: true });
+  const md = markdownIt({ html: false, linkify: false, typographer: true }).use(typography);
+
+  // Images in Markdown get their ratio class too.
+  const renderImage = md.renderer.rules.image;
+  md.renderer.rules.image = (tokens, idx, options, env, self) => {
+    const ratio = imageRatioClass(tokens[idx].attrGet("src"));
+    if (ratio) tokens[idx].attrJoin("class", ratio);
+    return renderImage(tokens, idx, options, env, self);
+  };
 
   // Code is always left-to-right, whatever the page direction.
   for (const rule of ["fence", "code_block"]) {
@@ -191,6 +218,9 @@ export default async function katagami(eleventyConfig) {
     for (const file of fs.readdirSync(`${THEME_DIR}/i18n`)) {
       if (file.endsWith(".yaml")) strings[path.basename(file, ".yaml")] = readYaml(`${THEME_DIR}/i18n/${file}`);
     }
+    // Site text is rendered with its language's tag, for quotation marks and spacing.
+    const locales = readYaml(path.join(eleventyConfig.directories?.data ?? path.join(inputDir, "_data"), "locales.yaml"));
+    const tagFor = (code) => (Array.isArray(locales) ? locales.find((locale) => locale.code === code)?.tag : undefined) ?? code;
     const siteText = {};
     for (const lang of fs.readdirSync(inputDir)) {
       const dir = path.join(inputDir, lang, "_site");
@@ -199,7 +229,7 @@ export default async function katagami(eleventyConfig) {
       for (const file of fs.readdirSync(dir)) {
         if (!file.endsWith(".md")) continue;
         const { data, content } = matter(fs.readFileSync(path.join(dir, file), "utf8"));
-        siteText[lang][path.basename(file, ".md")] = { data, html: md.render(content) };
+        siteText[lang][path.basename(file, ".md")] = { data, html: md.render(content, { langTag: tagFor(lang) }) };
       }
     }
     state = {
@@ -292,6 +322,9 @@ export default async function katagami(eleventyConfig) {
   eleventyConfig.addGlobalData("eleventyComputed", {
     // Text direction follows the page language, as listed in _data/locales.yaml.
     dir: (data) => data.locales?.find((locale) => locale.code === data.lang)?.dir ?? "ltr",
+    // The page's language tag, such as fr-CA: its locale's `tag`, or its code. Folders and
+    // URLs use the code; the html lang attribute, dates and typography use the tag.
+    langTag: (data) => data.locales?.find((locale) => locale.code === data.lang)?.tag ?? data.lang,
     // Every page in a language folder joins the navigation tree. Its parent is the
     // nearest folder above it with an index.md; the language's home page is the root.
     eleventyNavigation: (data) => {
@@ -362,7 +395,13 @@ export default async function katagami(eleventyConfig) {
   }
   eleventyConfig.addFilter("blockPartial", (type, inputPath) => partialFor("blocks", "block type", type, inputPath));
   eleventyConfig.addFilter("viewPartial", (view, inputPath) => partialFor("views", "view", view, inputPath));
-  eleventyConfig.addFilter("markdown", (text) => md.render(String(text ?? "")));
+  eleventyConfig.addFilter("markdown", (text, langTag) => md.render(String(text ?? ""), { langTag }));
+  // Plain-text fields, such as titles and descriptions: the same smart punctuation and
+  // spacing as Markdown, but no Markdown syntax, so *a* stays *a*. Escaped for HTML.
+  const plain = markdownIt({ html: false, linkify: false, typographer: true })
+    .disable(["newline", "escape", "backticks", "strikethrough", "emphasis", "link", "image", "autolink", "entity"])
+    .use(typography);
+  eleventyConfig.addFilter("typeset", (text, langTag) => plain.renderInline(String(text ?? ""), { langTag }));
   eleventyConfig.addFilter("pageByUrl", (pages, url, inputPath) => {
     const found = pages.find((item) => item.url === url);
     if (!found && inputPath) console.warn(`[katagami] ${url} matches no page, linked from ${inputPath}`);
@@ -454,6 +493,30 @@ export default async function katagami(eleventyConfig) {
     return src;
   });
   eleventyConfig.addFilter("firstImageBlock", (blocks) => (blocks ?? []).findIndex((block) => block?.type === "image"));
+
+  // Image proportions: read from src/media/ before each build, and written after it as
+  // assets/css/image-ratios.css, one custom property per ratio class.
+  eleventyConfig.on("eleventy.before", async () => {
+    imageRatios.clear();
+    const media = path.join(inputDir, "media");
+    if (!fs.existsSync(media)) return;
+    for (const file of fs.readdirSync(media, { recursive: true })) {
+      if (!RASTER.test(file)) continue;
+      const metadata = await sharp(path.join(media, file)).metadata();
+      const { width, height } = metadata.autoOrient ?? metadata;
+      if (width && height) imageRatios.set(`/media/${file.split(path.sep).join("/")}`, ratioName(width, height));
+    }
+  });
+  eleventyConfig.on("eleventy.after", ({ directories }) => {
+    const rules = [...new Set(imageRatios.values())].sort().map((ratio) => {
+      const [width, height] = ratio.split("x").map(Number);
+      return `.ratio-${ratio} {\n  --image-ratio: ${(height / width).toFixed(6)};\n}`;
+    });
+    const target = path.join(directories.output, "assets/css");
+    fs.mkdirSync(target, { recursive: true });
+    fs.writeFileSync(path.join(target, "image-ratios.css"), `/* Generated by the theme from the images in src/media/. */\n\n${rules.join("\n\n")}\n`);
+  });
+  eleventyConfig.addFilter("imageRatio", imageRatioClass);
 
   // Assets and passthrough folders. Raster images in media/ are published only as
   // processed files.

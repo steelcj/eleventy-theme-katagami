@@ -15,10 +15,10 @@
     <tbody>
       {%- for item in items %}
       <tr>
-        <th scope="row"><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></th>
-        <td>{{ item.data.description }}</td>
+        <th scope="row"><a href="{{ item.url }}"><bdi>{{ item.data.title | typeset(langTag) | safe }}</bdi></a></th>
+        <td>{{ item.data.description | typeset(langTag) | safe }}</td>
         {%- if showDates %}
-        <td>{% if item.data.date %}<time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(lang) }}</time>{% endif %}</td>
+        <td>{% if item.data.date %}<time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(langTag) }}</time>{% endif %}</td>
         {%- endif %}
       </tr>
       {%- endfor %}

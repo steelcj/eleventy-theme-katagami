@@ -28,7 +28,8 @@ export default function (eleventyConfig) {
 - The site's `site/index.js`, when present, added as a plugin after the theme.
 - YAML data files, a computed `dir` for every page from its `lang` and `_data/locales.yaml`, and a `katagami` global with the manifest, default regions, interface strings and per-language site text from `{lang}/_site/*.md`.
 - A computed `eleventyNavigation` entry for every page in a language folder, with the Eleventy Navigation plugin registered.
-- Filters: `t` for interface strings, `regionParts` for the parts in a region, `translationUrl` for a page's translation, `localeFor` for a locale's settings, `folderItems` for the pages in a folder, `markdown` for Markdown fields, and `formatDate` for dates.
+- Filters: `t` for interface strings, `regionParts` for the parts in a region, `translationUrl` for a page's translation, `localeFor` for a locale's settings, `folderItems` for the pages in a folder, `markdown` for Markdown fields, `typeset` for plain-text fields such as titles, and `formatDate` for dates. Pages get `langTag`, their locale's full language tag, for the `lang` attribute, dates and typography.
+- `typography.js`, a markdown-it plugin for quotation marks by language and French spacing by locale tag: Quebec's for `fr-CA`, France's for other French tags.
 - A language chooser at `/`, unless the site has its own root `index` page.
 - A linter that warns about raw HTML in Markdown.
 - Block and view partials looked up by name, with a placeholder and warning for unknown names in development and a failed build in production.

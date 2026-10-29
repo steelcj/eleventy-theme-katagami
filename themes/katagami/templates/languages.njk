@@ -3,6 +3,7 @@
 {#- The site root: a choice of languages, each named in its own language. #}
 {%- set locale = locales | localeFor(site.defaultLang) %}
 {%- set lang = locale.code %}
+{%- set langTag = locale.tag or locale.code %}
 {%- set dir = locale.dir %}
 {%- set title = "" %}
 
@@ -18,7 +19,7 @@
         <ul>
           {%- for item in locales %}
           {%- if not (item.fixture and katagami.production) %}
-          <li><a href="/{{ item.code }}/" lang="{{ item.code }}" hreflang="{{ item.code }}" dir="{{ item.dir }}">{{ item.name }}</a></li>
+          <li><a href="/{{ item.code }}/" lang="{{ item.tag or item.code }}" hreflang="{{ item.tag or item.code }}" dir="{{ item.dir }}">{{ item.name }}</a></li>
           {%- endif %}
           {%- endfor %}
         </ul>

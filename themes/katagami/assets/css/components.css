@@ -85,6 +85,13 @@
   font-size: var(--step--1);
 }
 
+/* Language names are set in system fonts, so a page never downloads a web font just
+   to show another language's name. */
+.language-switcher a,
+.language-list a {
+  font-family: var(--font-system);
+}
+
 /* Reader options. The container keeps the browser's display so that `hidden` hides it. */
 .ui-options {
   font-size: var(--step--1);
@@ -132,6 +139,7 @@
 
 .lead {
   font-size: var(--step-1);
+  line-height: calc(var(--baseline) * 5);
   color: var(--color-text-muted);
 }
 
@@ -178,16 +186,16 @@
   text-decoration: none;
 }
 
-/* Blocks. */
+/* Blocks, two lines apart. */
 .block {
-  margin-block: var(--space-l);
+  margin-block: calc(var(--line) * 2);
 }
 
-.block > :first-child {
+.block > :where(:first-child) {
   margin-block-start: 0;
 }
 
-.block > :last-child {
+.block > :where(:last-child) {
   margin-block-end: 0;
 }
 
@@ -215,17 +223,34 @@
   }
 }
 
+/* An image in the text flow keeps its proportions, from its ratio class, with its height
+   rounded up to a whole baseline (the image is cropped by under a baseline), so the text
+   after it returns to the grid. Images in Markdown paragraphs are treated the same way. */
+:where(.lead-image, .block--image, p) > picture {
+  display: block;
+  container-type: inline-size;
+}
+
+:where(.lead-image, .block--image, p) > picture img {
+  display: block;
+  inline-size: 100%;
+  block-size: round(up, calc(100cqi * var(--image-ratio)), var(--baseline));
+  object-fit: cover;
+}
+
 /* Cards, for teasers and album items. A card is one link: its title link stretches
-   over the whole card. */
+   over the whole card. Its rule is an outline, which takes no space, so the card is a
+   whole number of baselines tall. */
 .card {
   position: relative;
   padding: var(--space-m);
-  border: var(--rule-width) solid var(--color-rule);
+  outline: var(--rule-width) solid var(--color-rule);
+  outline-offset: calc(-1 * var(--rule-width));
   background-color: var(--color-surface);
 }
 
 .card:hover {
-  border-color: var(--color-accent);
+  outline-color: var(--color-accent);
 }
 
 .card:has(a:focus-visible) {
@@ -233,23 +258,25 @@
   outline-offset: 2px;
 }
 
-/* The card's image runs to the card's edges. */
+/* The card's image runs to the card's edges, cropped to about 3:2 and rounded up to a
+   whole number of baselines. */
 .card picture {
   display: block;
-  margin-block: calc(-1 * var(--space-m)) var(--space-s);
+  container-type: inline-size;
+  margin-block: calc(-1 * var(--space-m)) calc(var(--baseline) * 3);
   margin-inline: calc(-1 * var(--space-m));
 }
 
 .card img {
   display: block;
   inline-size: 100%;
-  aspect-ratio: 3 / 2;
+  block-size: round(up, calc(100cqi * 2 / 3), var(--baseline));
   object-fit: cover;
 }
 
 .card__title {
   font-size: var(--step-1);
-  margin-block: 0 var(--space-xs);
+  margin-block: 0 var(--baseline);
 }
 
 .card__title a {
@@ -277,9 +304,12 @@
   background-color: var(--color-surface);
 }
 
+/* A button is two baselines taller than its line, and sits at the top of the line box,
+   so the line it is on stays a whole number of baselines. */
 .button {
   display: inline-block;
-  padding: var(--space-xs) var(--space-m);
+  padding: var(--baseline) var(--space-m);
+  vertical-align: top;
   background-color: var(--color-indigo);
   color: var(--color-washi);
   text-decoration: none;
@@ -291,8 +321,10 @@
 }
 
 .block--unknown {
-  padding: var(--space-s);
-  border: 2px dashed var(--color-accent);
+  padding-block: calc(var(--baseline) * 2);
+  padding-inline: var(--space-s);
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
 }
 
 /* Images: the lead image and image blocks share the content measure their sizes rule
@@ -304,11 +336,11 @@
 }
 
 .lead-image {
-  margin-block: 0 var(--space-l);
+  margin-block: 0 var(--line);
 }
 
 figcaption {
-  margin-block-start: var(--space-xs);
+  margin-block-start: var(--baseline);
   color: var(--color-text-muted);
   font-size: var(--step--1);
 }
@@ -324,15 +356,16 @@ figcaption {
   list-style: none;
 }
 
+/* Rules between items are inset shadows, which take no space. */
 .view--listing li,
 .summary-item {
-  padding-block: var(--space-s);
-  border-block-end: var(--rule-width) solid var(--color-rule);
+  padding-block: calc(var(--baseline) * 2);
+  box-shadow: inset 0 calc(-1 * var(--rule-width)) 0 var(--color-rule);
 }
 
 .view--listing p,
 .summary-item p {
-  margin-block: var(--space-2xs) 0;
+  margin-block: 0;
   color: var(--color-text-muted);
 }
 
@@ -349,17 +382,24 @@ figcaption {
   align-items: start;
 }
 
-.summary-item img {
+/* Thumbnails are whole numbers of baselines tall: 6rem square on phones, and 10rem by
+   6.75rem, close to 3:2, on wider screens. */
+.summary-item picture {
+  display: block;
   flex: none;
+}
+
+.summary-item img {
+  display: block;
   inline-size: 6rem;
-  aspect-ratio: 1;
+  block-size: calc(var(--baseline) * 16);
   object-fit: cover;
 }
 
 @media (min-width: 48rem) {
   .summary-item img {
     inline-size: 10rem;
-    aspect-ratio: 3 / 2;
+    block-size: calc(var(--baseline) * 18);
   }
 }
 

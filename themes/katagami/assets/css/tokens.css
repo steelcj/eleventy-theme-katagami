@@ -15,20 +15,32 @@
   --color-accent: var(--color-persimmon);
   --color-focus: var(--color-persimmon);
 
-  /* Fonts: system fonts, replaced by the font set's CSS in assets/css/fonts/. */
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  /* Fonts: system fonts, until the font set's CSS in assets/css/fonts/ replaces the
+     heading and body tokens. --font-system stays a system stack, for text in another
+     language, such as language names, that should never download a web font. */
+  --font-system: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Arabic", sans-serif;
+  --font-body: var(--font-system);
   --font-heading: var(--font-body);
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  /* Type scale, ratio 1.25. */
+  /* Type scale: a modular scale with a ratio of 1.25, a major third, from a 1rem body
+     size. --step--1 is half a step down rather than a whole one, so that small text
+     stays legible. */
+  --ratio: 1.25;
   --step--1: 0.875rem;
   --step-0: 1rem;
-  --step-1: 1.25rem;
-  --step-2: 1.5625rem;
-  --step-3: 1.953rem;
-  --line-height: 1.6;
-  --line-height-heading: 1.25;
-  --line-height-arabic: 1.8;
+  --step-1: calc(var(--step-0) * var(--ratio));
+  --step-2: calc(var(--step-1) * var(--ratio));
+  --step-3: calc(var(--step-2) * var(--ratio));
+
+  /* Vertical rhythm: every line height and every vertical margin between blocks of
+     text is a whole number of baselines, so that lines keep to one grid down the page.
+     A line of body text is four baselines. Arabic text, set slightly larger, takes five,
+     and headings in Arabic one more than in Latin text, for its taller letters and marks. */
+  --baseline: 0.375rem;
+  --line: calc(var(--baseline) * 4);
+  --line-arabic: calc(var(--baseline) * 5);
+  --heading-extra-lines: 0;
   --font-size-arabic: 1.0625em;
 
   /* Space, from one baseline unit. */

@@ -1,7 +1,12 @@
-# Languages of the site. `dir` sets the text direction of every page in that
-# language. A fixture locale builds everywhere but is left out of the language
-# switcher in production builds. `fontSet: arabic` sets text in the font set's
-# Arabic companion font and preloads it.
+# Languages of the site.
+# - `code` names the language's folder and URL prefix.
+# - `tag`, when given, is its full language tag, such as fr-CA, used for the lang
+#   attribute, dates and typography: fr-CA follows Quebec's French spacing, other
+#   French tags France's.
+# - `dir` sets the text direction of every page in that language.
+# - `fontSet: arabic` sets text in the font set's Arabic companion and preloads it.
+# - A `fixture` locale builds everywhere but is left out of the language switcher
+#   in production builds.
 - { code: en, name: English, dir: ltr }
-- { code: fr, name: Français, dir: ltr }
+- { code: fr, tag: fr-CA, name: Français, dir: ltr }
 - { code: ar, name: العربية, dir: rtl, fontSet: arabic, fixture: true }

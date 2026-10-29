@@ -16,7 +16,12 @@ const weights = [400, 700];
 const manifest = yaml.load(fs.readFileSync(`${theme}/theme.yaml`, "utf8"));
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "katagami-fonts-"));
 
+// Fonts are pinned: theme.yaml must give an exact version, and the fetched package must
+// be that version, so a rerun reproduces the same files.
 function fetchPackage(name, version) {
+  if (!/^\d+\.\d+\.\d+$/.test(String(version))) {
+    throw new Error(`theme.yaml: font ${name} needs an exact version such as 5.3.0, not "${version}"`);
+  }
   const output = execFileSync("npm", ["pack", `@fontsource/${name}@${version}`, "--silent", "--pack-destination", work], {
     encoding: "utf8",
   });
@@ -24,7 +29,10 @@ function fetchPackage(name, version) {
   const dir = path.join(work, name);
   fs.mkdirSync(dir);
   execFileSync("tar", ["-xzf", path.join(work, tarball), "-C", dir]);
-  return path.join(dir, "package");
+  const pkg = path.join(dir, "package");
+  const fetched = JSON.parse(fs.readFileSync(path.join(pkg, "package.json"), "utf8")).version;
+  if (fetched !== String(version)) throw new Error(`@fontsource/${name}: asked for ${version}, fetched ${fetched}`);
+  return pkg;
 }
 
 // Copies one font's files into assets/fonts/<name>/ and returns its family name and

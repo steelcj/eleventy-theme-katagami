@@ -2,5 +2,5 @@
 {%- set colophon = katagami.siteText[lang].colophon %}
 <div class="colophon" data-source="site">
   {{ colophon.html | safe }}
-  <p>{{ "theme" | t(lang) }}: <bdi>{{ katagami.name }} {{ katagami.version }}</bdi></p>
+  <p>{{ (("theme" | t(lang)) + ":") | typeset(langTag) | safe }} <bdi>{{ katagami.name }} {{ katagami.version }}</bdi></p>
 </div>

@@ -2,9 +2,9 @@
 <ul class="view view--listing">
   {%- for item in items %}
   <li>
-    <a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a>
+    <a href="{{ item.url }}"><bdi>{{ item.data.title | typeset(langTag) | safe }}</bdi></a>
     {%- if item.data.description %}
-    <p>{{ item.data.description }}</p>
+    <p>{{ item.data.description | typeset(langTag) | safe }}</p>
     {%- endif %}
   </li>
   {%- endfor %}
