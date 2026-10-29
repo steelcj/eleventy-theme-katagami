@@ -1,0 +1,7 @@
+# Parts rendered in each region, in order. A region left out here uses the
+# theme default in themes/katagami/defaults/regions.yaml.
+header: [skip-links, logo, main-nav, language-switcher]
+abovecontent: [breadcrumbs]
+sidebar: [section-nav]
+belowcontent: []
+footer: [footer-text, site-actions, colophon]

@@ -1,0 +1,10 @@
+{#- Links to this page in each language, or to that language's home page when there is no translation. #}
+<nav class="language-switcher" aria-label="{{ 'language' | t(lang) }}">
+  <ul>
+    {%- for locale in locales %}
+    {%- if not (locale.fixture and katagami.production) %}
+    <li><a href="{{ collections.all | translationUrl(locale.code, page.url, lang, translationKey) }}" lang="{{ locale.code }}" hreflang="{{ locale.code }}" dir="{{ locale.dir }}"{% if locale.code == lang %} aria-current="true"{% endif %}>{{ locale.name }}</a></li>
+    {%- endif %}
+    {%- endfor %}
+  </ul>
+</nav>

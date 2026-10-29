@@ -1,0 +1,26 @@
+{% extends "layouts/base.njk" %}
+
+{# Folder intro, then its children. A plain list until views arrive in phase 3. #}
+{% block content %}
+      <h1>{{ title }}</h1>
+      {%- if description %}
+      <p class="lead">{{ description }}</p>
+      {%- endif %}
+      {{ content | safe }}
+      {%- set children = collections.all | eleventyNavigation(eleventyNavigation.key) %}
+      {%- if children | length %}
+      <section class="section-children" aria-labelledby="section-children-heading">
+        <h2 id="section-children-heading">{{ "inThisSection" | t(lang) }}</h2>
+        <ul>
+          {%- for child in children %}
+          <li>
+            <a href="{{ child.url }}"><bdi>{{ child.data.title }}</bdi></a>
+            {%- if child.data.description %}
+            <p>{{ child.data.description }}</p>
+            {%- endif %}
+          </li>
+          {%- endfor %}
+        </ul>
+      </section>
+      {%- endif %}
+{%- endblock %}

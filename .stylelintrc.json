@@ -1,0 +1,30 @@
+{
+  "extends": "stylelint-config-recommended",
+  "rules": {
+    "property-disallowed-list": [
+      [
+        "/^(margin|padding|scroll-margin|scroll-padding)-(top|right|bottom|left)$/",
+        "/^border-(top|right|bottom|left)(-(width|style|color))?$/",
+        "/^border-(top|bottom)-(left|right)-radius$/",
+        "/^(top|right|bottom|left)$/",
+        "/^(min-|max-)?(width|height)$/",
+        "/^overflow-(x|y)$/",
+        "/^overscroll-behavior-(x|y)$/",
+        "/^contain-intrinsic-(width|height)$/"
+      ],
+      {
+        "message": "Use a logical property instead of \"%s\" (for example margin-inline-start, padding-block, inset-inline-end, inline-size), so layouts mirror in right-to-left pages"
+      }
+    ],
+    "declaration-property-value-disallowed-list": [
+      {
+        "/^(text-align|text-align-last|float|clear)$/": ["/^(left|right)$/"],
+        "resize": ["horizontal", "vertical"],
+        "/^(margin|padding|inset|scroll-margin|scroll-padding|border-width|border-style|border-color)$/": ["/^\\S+\\s+\\S+\\s+\\S+/"]
+      },
+      {
+        "message": "Use a logical value or logical longhand properties instead of \"%s: %s\", so layouts mirror in right-to-left pages"
+      }
+    ]
+  }
+}

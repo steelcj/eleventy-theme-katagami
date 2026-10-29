@@ -1,0 +1,10 @@
+{%- set actions = katagami.siteText[lang].footer.data.actions %}
+{%- if actions | length %}
+<nav class="site-actions" aria-label="{{ 'siteActions' | t(lang) }}">
+  <ul>
+    {%- for action in actions %}
+    <li><a href="{{ action.url }}"><bdi>{{ action.label }}</bdi></a></li>
+    {%- endfor %}
+  </ul>
+</nav>
+{%- endif %}

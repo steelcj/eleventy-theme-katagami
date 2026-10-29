@@ -1,0 +1,77 @@
+<!doctype html>
+{#- The trail from the language's home page to this page, used by navigation parts. #}
+{%- set navTrail = collections.all | eleventyNavigationBreadcrumb(eleventyNavigation.key, { includeSelf: true, allowMissing: true }) %}
+<html lang="{{ lang }}" dir="{{ dir }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
+  {%- if description %}
+  <meta name="description" content="{{ description }}">
+  {%- endif %}
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  {%- block head %}{% endblock %}
+</head>
+<body>
+  <div class="page">
+    {%- block header %}
+    {%- set parts = regions | regionParts("header", page.inputPath) %}
+    {%- if parts | length %}
+    <header class="region region--header">
+      {%- for part in parts %}
+      {% include "parts/" + part + ".njk" %}
+      {%- endfor %}
+    </header>
+    {%- endif %}
+    {%- endblock %}
+
+    {%- block abovecontent %}
+    {%- set parts = regions | regionParts("abovecontent", page.inputPath) %}
+    {%- if parts | length %}
+    <div class="region region--abovecontent">
+      {%- for part in parts %}
+      {% include "parts/" + part + ".njk" %}
+      {%- endfor %}
+    </div>
+    {%- endif %}
+    {%- endblock %}
+
+    <main id="content" class="region region--content" tabindex="-1">
+      {%- block content %}{{ content | safe }}{% endblock %}
+    </main>
+
+    {%- block sidebar %}
+    {%- set parts = regions | regionParts("sidebar", page.inputPath) %}
+    {%- if parts | length %}
+    <aside class="region region--sidebar">
+      {%- for part in parts %}
+      {% include "parts/" + part + ".njk" %}
+      {%- endfor %}
+    </aside>
+    {%- endif %}
+    {%- endblock %}
+
+    {%- block belowcontent %}
+    {%- set parts = regions | regionParts("belowcontent", page.inputPath) %}
+    {%- if parts | length %}
+    <div class="region region--belowcontent">
+      {%- for part in parts %}
+      {% include "parts/" + part + ".njk" %}
+      {%- endfor %}
+    </div>
+    {%- endif %}
+    {%- endblock %}
+
+    {%- block footer %}
+    {%- set parts = regions | regionParts("footer", page.inputPath) %}
+    {%- if parts | length %}
+    <footer class="region region--footer">
+      {%- for part in parts %}
+      {% include "parts/" + part + ".njk" %}
+      {%- endfor %}
+    </footer>
+    {%- endif %}
+    {%- endblock %}
+  </div>
+</body>
+</html>

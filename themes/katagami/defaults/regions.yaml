@@ -1,0 +1,7 @@
+# Parts rendered in each region, in order. Used for any region the site's
+# _data/regions.yaml leaves out. An empty list removes a region.
+header: [skip-links, logo, main-nav, language-switcher]
+abovecontent: [breadcrumbs]
+sidebar: [section-nav]
+belowcontent: []
+footer: [footer-text, site-actions, colophon]

@@ -1,0 +1,58 @@
+/* Page regions on a grid. The content sits towards the inline start, with the
+   sidebar or open space at the inline end, so the layout mirrors in right-to-left pages. */
+.page {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr) var(--gutter);
+  grid-template-rows: auto auto auto auto 1fr auto;
+  grid-template-areas:
+    ". header ."
+    ". abovecontent ."
+    ". content ."
+    ". sidebar ."
+    ". belowcontent ."
+    ". footer .";
+  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  max-inline-size: var(--page-max);
+  margin-inline: auto;
+}
+
+.region--header {
+  grid-area: header;
+}
+
+.region--abovecontent {
+  grid-area: abovecontent;
+}
+
+.region--content {
+  grid-area: content;
+}
+
+.region--sidebar {
+  grid-area: sidebar;
+}
+
+.region--belowcontent {
+  grid-area: belowcontent;
+}
+
+.region--footer {
+  grid-area: footer;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    --gutter: var(--space-l);
+
+    grid-template-columns: var(--gutter) minmax(0, 3fr) minmax(0, 1fr) var(--gutter);
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      ". header header ."
+      ". abovecontent abovecontent ."
+      ". content sidebar ."
+      ". belowcontent . ."
+      ". footer footer .";
+    column-gap: var(--space-l);
+  }
+}

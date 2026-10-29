@@ -1,0 +1,6 @@
+{%- set footer = katagami.siteText[lang].footer %}
+{%- if footer.html %}
+<div class="footer-text">
+  {{ footer.html | safe }}
+</div>
+{%- endif %}

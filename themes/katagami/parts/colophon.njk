@@ -1,0 +1,6 @@
+{%- set colophon = katagami.siteText[lang].colophon %}
+{%- if colophon.html %}
+<div class="colophon">
+  {{ colophon.html | safe }}
+</div>
+{%- endif %}

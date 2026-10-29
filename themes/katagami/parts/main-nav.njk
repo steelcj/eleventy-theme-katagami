@@ -1,0 +1,13 @@
+{#- The curated top menu from _data/navigation/{lang}.yaml. The item for the section
+    the page is in is marked as current; its children appear in the section navigation. #}
+{%- set items = navigation[lang] %}
+{%- set sectionUrl = navTrail[1].url if navTrail | length > 1 else "" %}
+{%- if items | length %}
+<nav class="main-nav" aria-label="{{ 'mainNavigation' | t(lang) }}">
+  <ul>
+    {%- for item in items %}
+    <li><a href="{{ item.url }}"{% if item.url == page.url %} aria-current="page"{% elif item.url == sectionUrl %} aria-current="true"{% endif %}><bdi>{{ item.label }}</bdi></a></li>
+    {%- endfor %}
+  </ul>
+</nav>
+{%- endif %}

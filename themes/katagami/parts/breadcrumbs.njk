@@ -1,0 +1,19 @@
+{#- From the language's home page down to this page, following the folders.
+    The separator between items is drawn in CSS. #}
+{%- if navTrail | length > 1 %}
+<nav class="breadcrumbs" aria-label="{{ 'breadcrumbs' | t(lang) }}">
+  <ol>
+    {%- for crumb in navTrail %}
+    <li>
+      {%- if loop.last %}
+      <span aria-current="page"><bdi>{{ crumb.title }}</bdi></span>
+      {%- elif loop.first %}
+      <a href="{{ crumb.url }}">{{ "home" | t(lang) }}</a>
+      {%- else %}
+      <a href="{{ crumb.url }}"><bdi>{{ crumb.title }}</bdi></a>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+  </ol>
+</nav>
+{%- endif %}

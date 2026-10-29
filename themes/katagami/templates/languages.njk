@@ -1,0 +1,26 @@
+{% extends "layouts/base.njk" %}
+
+{#- The site root: a choice of languages, each named in its own language. #}
+{%- set locale = locales | localeFor(site.defaultLang) %}
+{%- set lang = locale.code %}
+{%- set dir = locale.dir %}
+{%- set title = "" %}
+
+{% block header %}{% endblock %}
+{% block abovecontent %}{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block belowcontent %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+      <h1><bdi>{{ site.name }}</bdi></h1>
+      <nav class="language-list" aria-label="{{ 'language' | t(lang) }}">
+        <ul>
+          {%- for item in locales %}
+          {%- if not (item.fixture and katagami.production) %}
+          <li><a href="/{{ item.code }}/" lang="{{ item.code }}" hreflang="{{ item.code }}" dir="{{ item.dir }}">{{ item.name }}</a></li>
+          {%- endif %}
+          {%- endfor %}
+        </ul>
+      </nav>
+{%- endblock %}

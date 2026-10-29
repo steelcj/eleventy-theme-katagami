@@ -1,0 +1,25 @@
+{#- The pages of the top-level section this page is in, opened down to the current page.
+    Pages with excludeFromNav: true are left out. #}
+{%- macro navList(entries, currentKey) %}
+<ul>
+  {%- for entry in entries | rejectattr("hidden") %}
+  <li>
+    <a href="{{ entry.url }}"{% if entry.key == currentKey %} aria-current="page"{% endif %}><bdi>{{ entry.title }}</bdi></a>
+    {%- if (entry.children | rejectattr("hidden") | length) and (currentKey + "/").startsWith(entry.key + "/") %}
+    {{ navList(entry.children, currentKey) }}
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ul>
+{%- endmacro %}
+
+{%- if navTrail | length > 1 %}
+{%- set section = navTrail[1] %}
+{%- set entries = collections.all | eleventyNavigation(section.key) %}
+<nav class="section-nav" aria-label="{{ 'sectionNavigation' | t(lang) }}">
+  <p class="section-nav__title"><a href="{{ section.url }}"{% if section.key == eleventyNavigation.key %} aria-current="page"{% endif %}><bdi>{{ section.title }}</bdi></a></p>
+  {%- if entries | rejectattr("hidden") | length %}
+  {{ navList(entries, eleventyNavigation.key) }}
+  {%- endif %}
+</nav>
+{%- endif %}

@@ -1,0 +1,6 @@
+# Languages of the site. `dir` sets the text direction of every page in that
+# language. A fixture locale builds everywhere but is left out of the language
+# switcher in production builds.
+- { code: en, name: English, dir: ltr }
+- { code: fr, name: Français, dir: ltr }
+- { code: ar, name: العربية, dir: rtl, fixture: true }
