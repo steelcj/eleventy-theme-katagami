@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. The format follows Keep a
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-29
+
+### Fixed
+
+- On right-to-left pages, each contrast choice's hidden radio input now sits under its own choice. Infusion offset the inputs with `left` and spaced the choices with `margin-right`, so in Arabic an input sat under the neighbouring choice, and activating it at its position chose the wrong scheme. The theme's Infusion styles now use `inset-inline-start` and `margin-inline-end`.
+
+### Added
+
+- Browser tests that choose every contrast option where its input is, on Arabic and English pages, and by keyboard on the Arabic page, checking the stored value each time. The tests wait for the panel's opening animation to finish before measuring.
+
 ## [0.5.0] - 2026-10-29
 
 Phase 5: reader preferences.

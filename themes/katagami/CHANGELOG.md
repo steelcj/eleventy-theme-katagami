@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-29
+
+### Fixed
+
+- Contrast choices' radio inputs sit under their own choices on right-to-left pages, with logical properties in place of Infusion's physical offsets and margins.
+
 ## [0.5.0] - 2026-10-29
 
 ### Added

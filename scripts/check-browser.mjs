@@ -71,7 +71,9 @@ async function open(context, url) {
 async function openPanel(page) {
   await page.click(".flc-slidingPanel-toggleButton");
   await page.waitForSelector(".flc-prefsEditor-text-font option", { state: "attached", timeout: 15000 });
-  await page.waitForTimeout(500);
+  // Wait for the panel's slide-open animation to finish, so positions are final.
+  await page.waitForFunction(() => window.jQuery && window.jQuery(":animated").length === 0);
+  await page.waitForTimeout(100);
 }
 
 // Chooses a contrast scheme by its label, as a reader does.
@@ -258,6 +260,38 @@ const WHITE = "rgb(255, 255, 255)";
     await page.close();
   }
   await context.close();
+}
+
+// Each contrast choice's radio input sits under its own visible choice, in either
+// direction: a click where the input is selects that choice, and on the Arabic page the
+// keyboard moves through every choice. The stored value must match each time.
+{
+  const storedContrast = async (page) => (await stored(page))?.contrast ?? "default";
+  for (const url of ["/ar/", "/en/"]) {
+    const context = await browser.newContext();
+    const { page, errors } = await open(context, url);
+    await openPanel(page);
+    for (const value of ["site", "high", "dark", "default"]) {
+      const box = await page.locator(`.flc-prefsEditor-themeInput[value="${value}"]`).boundingBox();
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await page.waitForTimeout(200);
+      const saved = await storedContrast(page);
+      expect(saved === value, `${url}: clicking where the "${value}" input is chose "${saved}"`);
+    }
+    if (url === "/ar/") {
+      await page.focus('.flc-prefsEditor-themeInput[value="default"]');
+      for (const value of ["site", "high", "dark", "default"]) {
+        await page.keyboard.press("ArrowDown");
+        await page.keyboard.press("Space");
+        await page.waitForTimeout(200);
+        const focused = await page.evaluate(() => document.activeElement.value);
+        const saved = await storedContrast(page);
+        expect(focused === value && saved === value, `/ar/: by keyboard, "${focused}" is focused and "${saved}" is stored, expected "${value}"`);
+      }
+    }
+    expect(errors.length === 0, `${url}: errors choosing contrast: ${errors.join("; ")}`);
+    await context.close();
+  }
 }
 
 // Reset from the open panel clears the saved preferences too.

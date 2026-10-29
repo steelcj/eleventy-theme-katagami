@@ -551,3 +551,21 @@ figcaption {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Infusion offsets each contrast choice's hidden radio input with left and spaces the
+   choices with margin-right, so in right-to-left pages an input sat under the next
+   choice. Logical properties put each input under its own choice in either direction. */
+.region--header .ui-options .fl-prefsEditor .fl-choices .fl-choice input.fl-hidden-accessible {
+  inset: auto;
+  inset-block-start: 1rem;
+  inset-inline-start: 1rem;
+}
+
+.region--header .ui-options .fl-prefsEditor .fl-choices .fl-choice label {
+  margin: 0;
+  margin-inline-end: var(--space-2xs);
+}
+
+.region--header .ui-options .fl-prefsEditor .fl-choices .fl-choice:last-child label {
+  margin-inline-end: 0;
+}
