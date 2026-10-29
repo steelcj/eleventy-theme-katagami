@@ -4,6 +4,25 @@ All notable changes to this project are recorded here. The format follows Keep a
 
 ## [Unreleased]
 
+Wrap-up at 0.5.1: the CMS adapter and fences are deferred.
+
+### Removed
+
+- `src/admin/` and its passthrough copy. Sveltia CMS support is deferred, so the site has no admin page.
+
+### Added
+
+- A Status section in the README: what 0.5.1 includes, and what is deferred, the CMS adapter, fences and Mermaid, the embed block, localized folder names with identifier pairing, and redirects.
+
+### Specification
+
+The specification is now version 0.8.0:
+
+- Sveltia CMS is deferred, with the findings of tests of 0.253.2: nested folders with `{{locale}}` paths work, Arabic fields display right to left, and localized slugs rename French files to the English slug and place new translations of subfolder pages in the wrong folder. The section is renamed CMS support, and the `cms/` directory, the CMS adapter and phase 6 are marked deferred. Fences, phase 7, are deferred too.
+- Localized URLs are a requirement, with the planned pairing design: a shared `urn:uuid` identifier in every language's file, including each folder's `index.md`, so files and folders can be renamed per language. Redirects are deferred until after it. The open question on pairing when an English page moves is decided, and a new one asks for the identifier's details.
+- Every item awaiting an Arabic reader's review is gathered into one checklist, Arabic reader's review, which adds the theme's interface strings and the fixture's menu and language name to the earlier list.
+- `src/admin/` is removed from the repository layout.
+
 ## [0.5.1] - 2026-10-29
 
 ### Fixed

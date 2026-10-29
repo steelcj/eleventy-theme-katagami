@@ -2,7 +2,7 @@
 title: "Katagami Theme: Goals"
 description: "Goals, repository layout, theme directories, typography, directionality and open decisions for Katagami, a Plone-inspired Eleventy theme for Vishpala websites."
 date: 2026-10-29
-version: 0.7.0
+version: 0.8.0
 lang: en
 author: Christopher Steel
 ---
@@ -11,7 +11,7 @@ author: Christopher Steel
 
 ## Purpose
 
-Katagami is a reusable, Plone-inspired theme for Eleventy with a vintage Japanese, minimalist visual style. Every Vishpala site starts from the same defaults for header, footer, page regions, grid layout and typography. Content lives in Markdown and data files that editors manage through Sveltia CMS; presentation lives only in the theme. One site differs from another by its content and a small set of overrides, never by a fork of the templates.
+Katagami is a reusable, Plone-inspired theme for Eleventy with a vintage Japanese, minimalist visual style. Every Vishpala site starts from the same defaults for header, footer, page regions, grid layout and typography. Content lives in Markdown and data files that editors can manage through a Git-based CMS once the CMS adapter, deferred for now, is built; presentation lives only in the theme. One site differs from another by its content and a small set of overrides, never by a fork of the templates.
 
 The name comes from katagami, the paper stencils used to print patterns onto kimono fabric. The stencil carries the design and the cloth carries the substance, which is the separation of content and presentation this theme is built on.
 
@@ -26,10 +26,10 @@ The Plone ideas we borrow are content types defined as schemas, reusable field g
 - **Simple editing for non-technical creators.** Site-wide text such as the footer, an announcement banner and the colophon is written as short Markdown files, one per language. Editors fill in fields and write prose; they never touch layout or markup.
 - **Folders that are directories.** A folder is a directory plus its `index.md`. Navigation, breadcrumbs, section listings and inherited settings all follow from that one convention.
 - **Grid layout through blocks.** Pages are composed of typed blocks (text, image, teaser, listing, grid, call to action in version 1), each rendered by one theme partial, with CSS Grid doing all layout.
-- **Content types with reusable behaviors.** Each Sveltia collection maps to a content type and a default layout. Shared field groups (metadata, navigation, lead image, related items) are defined once.
+- **Content types with reusable behaviors.** Each content type has a default layout, and will map to a CMS collection when the CMS adapter is built. Shared field groups (metadata, navigation, lead image, related items) are defined once.
 - **Site overrides without forking.** A site can replace any theme layout, partial or design token by providing a file of the same name in `site/`, using the pattern proven in the override spike.
 - **Beautiful, accessible typography.** Three font sets, Hyperlegible, Mincho and Gothic, selectable by the site and by readers, all self-hosted under the SIL Open Font License.
-- **Multilingual and bidirectional from the start.** Language-first paths, per-language site text and navigation, translatable theme interface strings, translations linked by a shared identifier, and one right-to-left locale, Arabic, built and tested as a required fixture.
+- **Multilingual and bidirectional from the start.** Language-first paths, localized URLs, per-language site text and navigation, translatable theme interface strings, translations linked by a shared identifier, and one right-to-left locale, Arabic, built and tested as a required fixture.
 - **Accessible and lightweight by default.** Semantic regions, skip links, Fluid Infusion UI Options support through CSS custom properties, build-time rendering instead of client-side scripts, and pages that work on low or intermittent bandwidth.
 - **Portable output.** Alongside HTML, the build emits a JSON index of content and metadata, so content can move to another system without loss.
 
@@ -57,8 +57,7 @@ eleventy-theme-katagami/
 │   │   └── services/
 │   ├── fr/
 │   ├── ar/                 right-to-left fixture, excluded from the language switcher
-│   ├── admin/              Sveltia CMS: index.html and config.yml
-│   └── media/              uploads, the Sveltia media folder
+│   └── media/              uploaded images and files
 ├── site/                   overrides of theme files, used to test shadowing
 ├── themes/
 │   └── katagami/           the theme
@@ -69,7 +68,7 @@ Consequences of using `src/` as input:
 
 - Pages publish at their path within `src/`, so `src/en/about.md` publishes at `/en/about/` with no permalink rules.
 - Project documentation, the theme and site overrides are outside the input, so Eleventy never builds them as pages and needs no ignore rules for them.
-- `src/admin/` and `src/media/` are passed through to the output unchanged, and theme assets are copied from `themes/katagami/assets/` by the theme plugin.
+- `src/media/` is passed through to the output, except raster images, which are published only as processed files, and theme assets are copied from `themes/katagami/assets/` by the theme plugin.
 
 ## Theme directory
 
@@ -154,7 +153,7 @@ themes/katagami/
 │   ├── feed.njk
 │   ├── robots.njk
 │   └── content-index.njk
-└── cms/                     Sveltia field fragments, merged into admin/config.yml
+└── cms/                     deferred: CMS field fragments, for the CMS adapter
     ├── behaviors.yaml
     └── blocks.yaml
 ```
@@ -172,7 +171,7 @@ themes/katagami/
 | `assets/` | Yes | Theme resources |
 | `templates/` | Yes | Site-level views such as the sitemap |
 | `fences/` | Optional | None; a static-site addition |
-| `cms/` | Optional | Behavior schemas |
+| `cms/` | Optional, deferred with the CMS adapter | Behavior schemas |
 
 What does not go in the theme: site content, footer text and navigation labels belong in `src/{lang}/` and `src/_data/`; uploaded media belongs in `src/media/`; site-specific template or style changes belong in `site/`.
 
@@ -257,12 +256,12 @@ A directory data file in `_site/` sets `permalink: false` and excludes the files
 | Folder title, description, display view | The folder's `index.md` front matter |
 | Default page of a folder | The body of that same `index.md` |
 | Settings inherited by contents | A directory data file setting `layout`, `type` and `regionOverrides` |
-| Addable types constraint | A Sveltia collection scoped to that directory |
+| Addable types constraint | A CMS collection scoped to that directory, deferred with the CMS adapter |
 | Exclude from navigation, position in parent | Navigation fields on every page |
 
 The theme plugin gives every page in a language folder a navigation entry automatically, so `src/` contains no JavaScript and sites need no navigation data beyond the main menu.
 
-- **Keys** are page paths, such as `en/services/workshops/kyoto`, until SAT identifiers replace them.
+- **Keys** are page paths, such as `en/services/workshops/kyoto`, until shared identifiers replace them (see Languages and translations).
 - **Parents** are the nearest folder above the page that has an `index.md`. The build warns about a directory of pages without one, since its pages would otherwise attach silently to the folder above.
 - **Editor fields** are three, on every page:
 
@@ -285,6 +284,9 @@ Each `<nav>` element has its own `aria-label`.
 - **Language switcher.** Links to the same page in other languages. Pages are matched by their path without the language prefix, so `/en/services/` and `/fr/services/` pair with no setting. A page with a different slug sets `translationKey` to the matching English page's path. With no translation, the link goes to that language's home page.
 - **Language chooser.** The theme builds a chooser at `/` unless `src/` provides its own root page.
 - **Production builds.** A production build hides fixture locales, `ar` for now, from the chooser and from the language switcher on every page; development builds show them.
+- **Localized URLs.** A requirement: every page and folder can have a name in its own language, so `/fr/services/conception/` pairs with `/en/services/design/`, and a French folder can carry a French name. Release 0.5.1 supports localized page names through `translationKey`, until an English page is moved: the key holds the English page's path, so moving that page breaks its translations' pairing until the key is updated. Localized folder names wait for identifier pairing. File and folder names stay ASCII and kebab-case in every language.
+- **Pairing by identifier, planned.** Every language's file of a page carries the same `urn:uuid` identifier in its front matter, and so does every language's `index.md` of a folder. The build pairs translations, and keys navigation, by that identifier instead of by path, so any file or folder can be renamed in one language without breaking its pairing or the links to its translations. The identifier is the stable identity SAT egress already emits (see SAT egress and navigation). `translationKey` remains until identifier pairing is built.
+- **Redirects, deferred.** Renaming a file or folder changes its URL. Redirects from old URLs are deferred until after identifier pairing, which gives a renamed page an identity to redirect by.
 
 ## Visual direction and typography
 
@@ -359,7 +361,7 @@ Arabic is built as a required fixture locale. It is the most demanding common ri
 
 ## Blocks
 
-Version 1 ships six block types: text, image, teaser, listing, grid and call to action. Each has one partial in `blocks/` and one field definition in `cms/blocks.yaml`.
+Version 1 ships six block types: text, image, teaser, listing, grid and call to action. Each has one partial in `blocks/`, and will have one field definition in `cms/blocks.yaml` when the CMS adapter is built.
 
 An embed block is deferred until after version 1. Embeds normally load third-party frames, which conflicts with the rule against third-party requests at runtime, so the embed block will show a local placeholder and contact the third party only when the reader asks.
 
@@ -379,24 +381,31 @@ Raw HTML in Markdown is presentation leaking into content, so it is escaped by d
 
 Text formats inside code fences are content and are rendered by handlers in `fences/`. Mermaid diagrams are rendered to inline SVG at build time, cached by a hash of their source, with `accTitle` and `accDescr` required and the source kept in a `<details>` element as a fallback. An unknown fence language falls back to a normal code block. A build-time linter warns about raw HTML and missing diagram descriptions.
 
-## Sveltia CMS compatibility
+## CMS support
 
-The layout works with Sveltia. Sveltia is a Git-based CMS that reads and writes only the folders and files its configuration names (<a id="cite-sveltia"></a>[Sveltia, n.d.](#ref-sveltia)), so a `themes/` folder it is never pointed at is invisible to it.
+The CMS adapter, meaning the CMS configuration, the theme's `cms/` field fragments and the script that merges them, is deferred. The site is edited as files in the meantime.
 
-| Sveltia setting | Points to | Notes |
+Sveltia is a Git-based CMS that reads and writes only the folders and files its configuration names (<a id="cite-sveltia"></a>[Sveltia, n.d.](#ref-sveltia)), so a `themes/` folder it is never pointed at is invisible to it, and it remains the likely choice. Sveltia CMS 0.253.2 was tested in October 2026 against the fixture site, in its local repository mode:
+
+- **Nested folders work.** A folder collection with `{{locale}}` in its path and nested subfolders, `src/{{locale}}/services/` with `workshops/` beneath it, lists, opens and saves entries in subfolders, and writes each language's file in place. A save rewrites every language's file and reformats its YAML front matter, keeping fields the configuration does not declare.
+- **Arabic fields display right to left.** The `ar` locale's fields have `dir="rtl"`.
+- **Localized slugs misbehave.** With localized slugs on, a save renamed French files to the English slug, such as `fr/services/conception.md` to `fr/services/design.md`; a new French translation got a non-ASCII file name, `accompagnement-éditorial.md`; and a new French translation of a page in a subfolder was written to `src/fr/services/atelier-de-nara.md` instead of into `workshops/`. Without localized slugs, translations land in the right subfolder but share the English file name.
+- **Pairing by English slug.** Sveltia pairs translations by a key equal to the English slug, which matches `translationKey` today but not the planned identifier pairing.
+- **A version check.** Sveltia's admin page checks online for a newer version, a request to a third party.
+
+Because localized URLs are a requirement, the adapter waits for identifier pairing and for a Sveltia release, or another Git-based CMS, that keeps each language's file and folder names and places translations of subfolder pages in the right subfolder. The earlier plan is the starting point:
+
+| Setting | Points to | Notes |
 | --- | --- | --- |
-| Folder collections | `src/{locale}/<section>/` | One collection per top-level section, matching the main menu |
-| File collections | `src/{locale}/_site/*.md`, `src/_data/navigation/`, `src/_data/site.yaml` | "Site text" for editors, using the locale tag in file paths |
+| Folder collections | `src/{{locale}}/<section>/` | One collection per top-level section, matching the main menu, with nested subfolders |
+| File collections | `src/{{locale}}/_site/*.md`, `src/_data/navigation/`, `src/_data/site.yaml` | "Site text" for editors |
 | `i18n` structure | `multiple_folders` | Matches the language-first paths |
 | `media_folder` and `public_folder` | `src/media/` and `/media` | Never inside the theme |
 | Block fields | A variable-type list matching the partials in `blocks/` | Definitions come from the theme's `cms/` fragments |
 
-Caveats:
-
-- **One configuration file.** We plan for a single Sveltia configuration, so theme field fragments in `cms/` are merged into `admin/config.yml` by a build script.
-- **Block names are a contract.** A renamed or removed block type leaves existing content without a partial, so an unknown type warns in development and fails a production build.
-- **No editing of theme defaults.** Sveltia never points at `themes/`; site data in `src/_data/` overrides the defaults.
-- **Preview fidelity.** Sveltia's preview does not run Eleventy or render Mermaid, so editors rely on a deploy preview for the final view.
+- **One configuration file.** Theme field fragments in `cms/` are merged into the site's CMS configuration by a build script.
+- **No editing of theme defaults.** The CMS never points at `themes/`; site data in `src/_data/` overrides the defaults.
+- **Preview fidelity.** A CMS preview does not run Eleventy or render Mermaid, so editors rely on a deploy preview for the final view.
 
 ## SAT egress and navigation
 
@@ -420,31 +429,39 @@ Egress emits a directory tree with an `index.md` per folder and rich front matte
 3. Blocks and views, including the folder-page behavior of section navigation. Done.
 4. Font sets and the type system. Done.
 5. Reader preferences: Fluid Infusion UI Options for fonts, contrast, text size and line spacing. Done.
-6. Sveltia configuration and the `cms/` merge.
-7. Fences, starting with Mermaid build-time rendering.
+6. The CMS adapter: CMS configuration and the `cms/` merge. Deferred, see CMS support.
+7. Fences, starting with Mermaid build-time rendering. Deferred.
 
-Each phase ends with a clean build of all three locales.
+Each phase ends with a clean build of all three locales. Work paused after phase 5, at release 0.5.1. Also deferred: the embed block, localized folder names with identifier pairing, and redirects.
+
+## Arabic reader's review
+
+Before the `ar` locale leaves fixture status, an Arabic reader reviews:
+
+- [ ] The companion fonts, Noto Naskh Arabic with Mincho and IBM Plex Sans Arabic with Gothic and Hyperlegible, including their size and line height beside Latin text.
+- [ ] The quotation marks, « » with ‹ › inside them.
+- [ ] The digits, Arabic-Indic or Western (see Open questions).
+- [ ] The theme's interface strings in `themes/katagami/i18n/ar.yaml`: the skip link, navigation and breadcrumb labels, the tabular view's column headings, the reset button and the placeholders for unknown blocks and views.
+- [ ] The preferences panel's button label, تفضيلات العرض, and its failed-load message, تعذّر تحميل التفضيلات.
+- [ ] The rest of the panel's Arabic strings in `themes/katagami/i18n/preferences/`: the text size, line spacing, font and contrast panels, including the font set names سهل القراءة, مينتشو and قوطي.
+- [ ] The fixture's Arabic text, which was not written by a native speaker: the pages and site text in `src/ar/`, the menu in `src/_data/navigation/ar.yaml`, and the language name العربية in `src/_data/locales.yaml`.
 
 ## Open questions
 
-- [ ] **What does Sveltia edit when content comes from SAT egress?** Option 1: Sveltia edits SAT content directly and egress runs in CI after each commit. Option 2: Sveltia owns some content types in the site repository and egress never touches those folders. Option 3: two-way sync with an ingress step, the most flexible and the most fragile. Option 1 or 2 is preferred for non-technical editors; the decision also belongs in the SAT config cascade specification.
+- [ ] **What does the CMS edit when content comes from SAT egress?** Deferred with the CMS adapter. Option 1: Sveltia edits SAT content directly and egress runs in CI after each commit. Option 2: Sveltia owns some content types in the site repository and egress never touches those folders. Option 3: two-way sync with an ingress step, the most flexible and the most fragile. Option 1 or 2 is preferred for non-technical editors; the decision also belongs in the SAT config cascade specification.
 - [x] **Which Mincho and Gothic fonts?** Decided from the specimens: Shippori Mincho and Zen Kaku Gothic New.
 - [x] **Atkinson Hyperlegible or Atkinson Hyperlegible Next?** Decided: Atkinson Hyperlegible Next, for body text in every set.
 - [x] **Which Arabic companion fonts?** Decided: Noto Naskh Arabic with Mincho, IBM Plex Sans Arabic with Gothic and Hyperlegible, subject to the Arabic reader's review below.
-- [ ] **Arabic reader's review.** Before the `ar` locale leaves fixture status, an Arabic reader reviews:
-  - the companion fonts, Noto Naskh Arabic and IBM Plex Sans Arabic;
-  - the inner quotation marks, ‹ › inside « »;
-  - the preferences panel's Arabic strings, including its button label, تفضيلات العرض, and the failed-load message;
-  - the digits, below;
-  - the fixture's Arabic text, which was not written by a native speaker.
+- [ ] **Arabic reader's review.** The checklist is in its own section, Arabic reader's review.
 - [ ] **Which digits on Arabic pages?** Arabic-Indic or Western (`ar-u-nu-latn`), depending on the audience.
-- [ ] **Does Sveltia edit right-to-left fields properly?** Test with the `ar` locale before relying on it.
+- [x] **Does Sveltia edit right-to-left fields properly?** Tested with 0.253.2: the `ar` locale's fields display right to left (see CMS support).
 - [ ] **How do Mermaid diagrams behave on right-to-left pages?** Mermaid's right-to-left support is limited; diagrams may keep a left-to-right flow with translated labels.
 - [ ] **Which Eleventy version do we target?** Version 3 is stable and version 4 is in pre-release; `theme.yaml` records the supported range.
-- [ ] **Mermaid rendering in CI.** Build-time rendering needs a headless browser; confirm the cache-by-hash approach keeps it out of routine builds.
-- [ ] **Does Sveltia accept several configuration files or custom editor components?** Either would simplify the `cms/` merge and give editors buttons for callouts and embeds.
+- [ ] **Mermaid rendering in CI.** Build-time rendering needs a headless browser; confirm the cache-by-hash approach keeps it out of routine builds. Deferred with fences.
+- [ ] **Does Sveltia accept several configuration files or custom editor components?** Either would simplify the `cms/` merge and give editors buttons for callouts and embeds. Deferred with the CMS adapter.
 - [ ] **How do client sites consume the theme?** A git submodule, an npm package, or a copied folder with its version recorded in `theme.yaml`.
-- [ ] **Translation pairing when an English page moves.** `translationKey` points at the English page's path, so moving that page breaks its pairing until SAT identifiers replace path keys. Decide whether the build should warn about a `translationKey` that matches no page.
+- [x] **Translation pairing when an English page moves.** Decided: a shared `urn:uuid` identifier in every language's file, including each folder's `index.md` (see Languages and translations). Until it is built, `translationKey` points at the English page's path, so moving that page breaks its pairing.
+- [ ] **Identifier pairing details.** The front matter field's name, whether SAT egress or a site script writes identifiers for content made outside SAT, and what the build reports for a file without an identifier or two files of one language sharing one.
 - [ ] **A replace form for region lists.** If adding to inherited parts proves limiting, consider an explicit `only: [...]` value that replaces a region with a list.
 
 ## References

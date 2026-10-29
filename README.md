@@ -2,6 +2,26 @@
 
 Katagami is a Plone-inspired theme for Eleventy with a vintage Japanese, minimalist style, built by Vishpala. This repository holds the theme in `themes/katagami/` and a demo and fixture site in `src/`, which doubles as the theme's test suite. The full specification is in [en/docs/dev/katagami-theme-goals.md](en/docs/dev/katagami-theme-goals.md).
 
+## Status
+
+Release 0.5.1 completes phases 1 to 5 of the specification:
+
+- The site skeleton, with regions filled from data, site text per language, site overrides in `site/` and the `site/index.js` extension point.
+- Folders, navigation, breadcrumbs, section navigation, region overrides, the language switcher and the language chooser, in English, French and the Arabic right-to-left fixture.
+- Six block types and four folder views, with build-time image processing.
+- Three self-hosted font sets and the type system: modular scale, baseline grid, smart punctuation and French spacing.
+- Reader preferences with Fluid Infusion UI Options, under a minimum Content Security Policy, with accessibility audits in a real browser.
+
+Deferred, with the reasons in the specification:
+
+- The CMS adapter: CMS configuration and the theme's `cms/` field fragments. Sveltia CMS was tested and is the likely choice once it keeps localized file names and places translations in subfolders correctly; until then the site is edited as files.
+- Fences, including build-time Mermaid diagrams.
+- The embed block.
+- Localized folder names, with translations paired by a shared `urn:uuid` identifier in every language's file, including each folder's `index.md`. Localized page names already work through `translationKey`, until an English page is moved: the key holds the English page's path, so moving that page breaks its translations' pairing until the key is updated.
+- Redirects from old URLs when a file or folder is renamed.
+
+The `ar` locale stays a fixture until an Arabic reader has reviewed it; the checklist is in the specification.
+
 ## Getting started
 
 Katagami needs Node.js 22 or later, for the image pipeline; `.nvmrc` selects Node 24 for nvm users.
@@ -25,7 +45,7 @@ npm run vendor-infusion # copy Fluid Infusion UI Options, at the version in them
 ## Layout
 
 - `eleventy.config.js` sets the directories and loads the theme plugin.
-- `src/` is Eleventy's input and holds site content only: one folder per language (`en`, `fr`, `ar`), global data in `src/_data/`, and `src/admin/` and `src/media/`, which are copied to the output unchanged.
+- `src/` is Eleventy's input and holds site content only: one folder per language (`en`, `fr`, `ar`), global data in `src/_data/`, and `src/media/`, whose images are published as processed files and other files unchanged.
 - `src/{lang}/_site/` holds the per-language site text, `footer.md` and `colophon.md`. These files are placed into the footer region and never published as pages.
 - `themes/katagami/` is the theme: manifest, plugin, layouts, parts (the items placed in regions), partials (pieces shared by layouts, blocks and views), blocks, views, defaults, interface strings and assets.
 - `site/` holds site overrides. A file here shadows the theme file with the same path, so `site/parts/colophon.njk` replaces `themes/katagami/parts/colophon.njk`. A layout that only the site has, in `site/layouts/`, gets a stub too.

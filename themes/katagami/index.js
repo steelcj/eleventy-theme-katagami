@@ -563,7 +563,6 @@ export default async function katagami(eleventyConfig) {
       });
     }
   }
-  eleventyConfig.addPassthroughCopy(`${inputDir}/admin`);
   eleventyConfig.addPassthroughCopy(`${inputDir}/media`, {
     filter: ["**/*", "!**/*.{jpg,jpeg,png,webp,avif,tif,tiff}"],
   });
