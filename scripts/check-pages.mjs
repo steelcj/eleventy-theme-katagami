@@ -35,6 +35,14 @@ for (const file of files) {
   // Every page states its language and direction.
   if (!/<html lang="[a-z-]+" dir="(ltr|rtl)">/.test(html)) report("<html> without lang and dir");
 
+  // Every page loads one font set and preloads exactly one font file, which must exist.
+  if (!/<link rel="stylesheet" href="\/assets\/css\/fonts\/[a-z-]+\.css" id="font-set">/.test(html)) report("no font set stylesheet");
+  const preloads = [...html.matchAll(/<link rel="preload" href="([^"]+)" as="font"/g)].map((match) => match[1]);
+  if (preloads.length !== 1) report(`${preloads.length} font preloads, expected 1`);
+  for (const href of preloads) {
+    if (!fs.existsSync(path.join(outputDir, href))) report(`preloaded font ${href} does not exist`);
+  }
+
   // Each <nav> has its own label.
   const labels = [...html.matchAll(/<nav\b([^>]*)>/g)].map((match) => match[1].match(/aria-label="([^"]*)"/)?.[1]);
   if (labels.some((label) => !label)) report("<nav> without aria-label");

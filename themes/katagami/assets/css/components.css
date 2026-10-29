@@ -85,6 +85,24 @@
   font-size: var(--step--1);
 }
 
+/* Reader options. The container keeps the browser's display so that `hidden` hides it. */
+.ui-options {
+  font-size: var(--step--1);
+}
+
+.ui-options label {
+  margin-inline-end: var(--space-xs);
+}
+
+.ui-options select {
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-xs);
+  border: var(--rule-width) solid var(--color-rule);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
 .breadcrumbs {
   font-size: var(--step--1);
   color: var(--color-text-muted);

@@ -12,3 +12,7 @@ unknownView: Unknown view
 title: Title
 description: Description
 date: Date
+fontSet: Font
+fontSetHyperlegible: Hyperlegible
+fontSetMincho: Mincho
+fontSetGothic: Gothic

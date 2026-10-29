@@ -15,7 +15,7 @@
   --color-accent: var(--color-persimmon);
   --color-focus: var(--color-persimmon);
 
-  /* Fonts: system fonts until the font sets arrive in phase 4. */
+  /* Fonts: system fonts, replaced by the font set's CSS in assets/css/fonts/. */
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   --font-heading: var(--font-body);
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;

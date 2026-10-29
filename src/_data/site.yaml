@@ -1,3 +1,5 @@
 name: Katagami
 author: Vishpala
 defaultLang: en
+# The font set readers see unless they choose another: hyperlegible, mincho or gothic.
+fontSet: hyperlegible

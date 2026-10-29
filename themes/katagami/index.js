@@ -152,6 +152,17 @@ function readDataFile(dir, name) {
   return undefined;
 }
 
+// The font sets from theme.yaml, with the one font file each preloads: the body font's
+// regular weight, or on pages in a locale with `fontSet: arabic`, the Arabic companion's.
+function fontSetState({ fontSets, fonts }) {
+  const regular = (name, subset) => `/assets/fonts/${name}/${name}-${subset}-400-normal.woff2`;
+  const preload = {};
+  for (const [set, { body, arabic }] of Object.entries(fontSets.sets)) {
+    preload[set] = { latin: regular(body, fonts[body].subsets[0]), arabic: regular(arabic, "arabic") };
+  }
+  return { default: fontSets.default, names: Object.keys(fontSets.sets), preload };
+}
+
 function applyRegionOverride(parts, value) {
   if (value === undefined) return parts;
   if (value === "none" || value === false || value === null) return [];
@@ -196,6 +207,7 @@ export default async function katagami(eleventyConfig) {
       version: manifest.version,
       defaults: { regions: readYaml(`${THEME_DIR}/defaults/regions.yaml`) },
       images: manifest.images,
+      fontSets: fontSetState(manifest),
       strings,
       siteText,
       // Fixture locales are left out of the language switcher in production builds.
@@ -445,7 +457,7 @@ export default async function katagami(eleventyConfig) {
 
   // Assets and passthrough folders. Raster images in media/ are published only as
   // processed files.
-  eleventyConfig.addPassthroughCopy({ [`${THEME_DIR}/assets`]: "assets" });
+  eleventyConfig.addPassthroughCopy({ [`${THEME_DIR}/assets`]: "assets" }, { filter: ["**/*", "!**/README.md"] });
   eleventyConfig.addPassthroughCopy(`${inputDir}/admin`);
   eleventyConfig.addPassthroughCopy(`${inputDir}/media`, {
     filter: ["**/*", "!**/*.{jpg,jpeg,png,webp,avif,tif,tiff}"],

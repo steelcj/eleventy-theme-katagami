@@ -13,6 +13,7 @@ npm run build      # build all locales into _site/
 npm run lint       # stylelint, including the logical-property rule
 npm run check      # check the built pages in _site/ against the theme's markup rules
 npm run fixture-images  # regenerate the stencil-pattern images in src/media/
+npm run vendor-fonts    # copy the fonts listed in theme.yaml and regenerate the font set CSS
 ```
 
 `npm run build:production` builds with `ELEVENTY_ENV=production`, which leaves fixture locales such as `ar` out of the language switcher. The fixture pages are still built.
@@ -25,7 +26,7 @@ npm run fixture-images  # regenerate the stencil-pattern images in src/media/
 - `themes/katagami/` is the theme: manifest, plugin, layouts, parts (the items placed in regions), partials (pieces shared by layouts, blocks and views), blocks, views, defaults, interface strings and assets.
 - `site/` holds site overrides. A file here shadows the theme file with the same path, so `site/parts/colophon.njk` replaces `themes/katagami/parts/colophon.njk`. A layout that only the site has, in `site/layouts/`, gets a stub too.
 - `site/index.js` is an optional extension point for site-only build code, such as extra data, filters or pages. When it exists, the theme plugin adds it as a plugin after registering everything else, so it can rely on the theme's loader, filters and data. It must not set directories, which belong to `eleventy.config.js`.
-- `scripts/` holds `check-pages.mjs`, run by `npm run check`, and `make-fixture-images.mjs`, which generates the fixture images.
+- `scripts/` holds `check-pages.mjs`, run by `npm run check`, `make-fixture-images.mjs`, which generates the fixture images, and `vendor-fonts.mjs`, which copies the theme's fonts.
 - `en/docs/` is project documentation and is never built.
 
 ## Overriding the theme
@@ -101,6 +102,20 @@ An unknown block type or view shows a placeholder and a warning in development, 
 Images live in `src/media/` and are processed at build time: every image becomes a `<picture>` with AVIF, WebP and the original format, at widths of 320, 640, 960 and 1280 pixels, never enlarged. Each has `width` and `height`, and loads lazily except the page's first image, its lead image or first image block, which loads at once. Only processed files are published, under `/media/img/`, and they are kept in `.cache/katagami/img/` so later builds do not encode them again.
 
 A page's lead image is its `image` field, `{ src, alt }`, which teasers, the summary view and the album view also use. Every image needs `alt` text unless it is marked `decorative: true`; a missing alt text or image file warns in development and fails a production build.
+
+## Fonts
+
+The theme has three font sets. Atkinson Hyperlegible Next sets body text in all of them; the sets differ in their headings and Arabic companion.
+
+| Font set | Headings | Body | Arabic |
+| --- | --- | --- | --- |
+| `hyperlegible` | Atkinson Hyperlegible Next | Atkinson Hyperlegible Next | IBM Plex Sans Arabic |
+| `mincho` | Shippori Mincho | Atkinson Hyperlegible Next | Noto Naskh Arabic |
+| `gothic` | Zen Kaku Gothic New | Atkinson Hyperlegible Next | IBM Plex Sans Arabic |
+
+The site picks its set with `fontSet` in `src/_data/site.yaml`, `hyperlegible` by default. Readers can choose another in the header; the choice needs JavaScript, is kept in the browser's local storage and applies before the page is drawn. Each page loads only its set's CSS and preloads one font file: the body font's regular weight, or the Arabic companion's on pages in a locale with `fontSet: arabic`.
+
+The fonts are self-hosted WOFF2 files under the SIL Open Font License, in `themes/katagami/assets/fonts/`, with each font's licence in its `OFL.txt`. Only the 400 and 700 weights of the Latin, Latin Extended and Arabic subsets are kept, and each subset downloads only when a page uses its characters. To change a font, edit `fonts` and `fontSets` in `theme.yaml` and run `npm run vendor-fonts`, which fetches the Fontsource packages without adding them as dependencies.
 
 ## Content rules
 

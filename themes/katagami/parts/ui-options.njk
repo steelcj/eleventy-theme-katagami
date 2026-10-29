@@ -1,0 +1,11 @@
+{#- Reader options: for now, the font set. Choosing needs JavaScript, so the control stays
+    hidden until assets/js/font-preference.js shows it; without it the site's font set is used. #}
+<div class="ui-options" data-ui-options hidden>
+  <label for="font-set-choice">{{ "fontSet" | t(lang) }}</label>
+  <select id="font-set-choice" data-font-set-choice>
+    {%- for name in katagami.fontSets.names %}
+    <option value="{{ name }}">{{ ("fontSet" + (name | capitalize)) | t(lang) }}</option>
+    {%- endfor %}
+  </select>
+</div>
+<script src="/assets/js/font-preference.js" defer></script>

@@ -4,9 +4,15 @@ All notable changes to this project are recorded here. The format follows Keep a
 
 ## [Unreleased]
 
-Phase 4 preparation.
+Phase 4: font sets, and preparation.
 
 ### Added
+
+- Three font sets, chosen from the specimens on the `specimens` branch: Hyperlegible (Atkinson Hyperlegible Next with IBM Plex Sans Arabic), Mincho (Shippori Mincho headings, Atkinson Hyperlegible Next body, Noto Naskh Arabic) and Gothic (Zen Kaku Gothic New headings, Atkinson Hyperlegible Next body, IBM Plex Sans Arabic). Each is one generated CSS file in `assets/css/fonts/` with its fonts' `@font-face` rules, Arabic companion included, and the `--font-heading` and `--font-body` tokens.
+- Self-hosted WOFF2 fonts in `assets/fonts/`, 400 and 700 weights of the Latin, Latin Extended and Arabic subsets only, each with its `OFL.txt`, copied from Fontsource packages by `npm run vendor-fonts` and `scripts/vendor-fonts.mjs` from the `fonts` and `fontSets` lists in `theme.yaml`, without adding the packages as dependencies.
+- The site's font set from `fontSet` in `site.yaml`. Each page loads only that set's CSS and preloads one font file: the body font's regular weight, or the Arabic companion's in a locale with `fontSet: arabic`.
+- A `ui-options` part in the header that lets readers choose a font set, with `assets/js/font-preference.js`. The control appears only with JavaScript; the choice is kept in local storage and applied by a short script in the page head before the page is drawn.
+- `npm run check` requires one font set stylesheet and one existing preloaded font on every page.
 
 - Stubs for layouts that only the site has, in `site/layouts/`.
 - `site/index.js`, an optional extension point for site-only build code, added as a plugin after the theme when present. It must not set directories.
@@ -19,7 +25,6 @@ Phase 4 preparation.
 ### Changed
 
 - Section navigation does not render when every page in the section is hidden from navigation.
-
 - `block-list`, `picture` and `lead-image` moved from `parts/` to a new `partials/` folder, so `parts/` holds only items placed in regions.
 - stylelint 17 and `stylelint-config-recommended` 18, with the same logical-property rules.
 - `sharp` is a direct development dependency, used by the fixture image script.

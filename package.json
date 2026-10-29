@@ -15,7 +15,8 @@
     "start": "eleventy --serve --watch",
     "lint": "stylelint --allow-empty-input \"themes/**/*.css\" \"site/**/*.css\"",
     "check": "node scripts/check-pages.mjs",
-    "fixture-images": "node scripts/make-fixture-images.mjs src/media"
+    "fixture-images": "node scripts/make-fixture-images.mjs src/media",
+    "vendor-fonts": "node scripts/vendor-fonts.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.1.7",

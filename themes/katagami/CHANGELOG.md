@@ -4,6 +4,8 @@
 
 ### Added
 
+- Font sets Hyperlegible, Mincho and Gothic, generated from `theme.yaml` with their Arabic companions, self-hosted WOFF2 subsets and OFL licences, one preloaded font per page, and a reader's choice through the `ui-options` part and `font-preference.js`.
+
 - Stubs for site-only layouts in `site/layouts/`, and `site/index.js` added as a plugin after the theme when present.
 - Base table styles and Markdown table alignment as `data-align`, styled with logical CSS.
 

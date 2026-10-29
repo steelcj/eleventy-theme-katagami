@@ -12,3 +12,7 @@ unknownView: طريقة عرض غير معروفة
 title: العنوان
 description: الوصف
 date: التاريخ
+fontSet: الخط
+fontSetHyperlegible: سهل القراءة
+fontSetMincho: مينتشو
+fontSetGothic: قوطي
