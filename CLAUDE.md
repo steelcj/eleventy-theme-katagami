@@ -13,7 +13,7 @@ Katagami is a Plone-inspired Eleventy theme with a vintage Japanese, minimalist 
 - `themes/`, `site/` and `en/docs/` sit outside `src/`, so Eleventy never builds them as pages.
 - The site's `eleventy.config.js` sets directories only, then loads `themes/katagami/index.js`, which registers everything else.
 - Site overrides live in `site/` and shadow theme files of the same name. A Nunjucks loader searches `site/` before `themes/katagami/` with caching off; its paths are relative to the repository root. Each theme layout gets a virtual stub in `_layouts/` containing only `{% extends "layouts/<name>.njk" %}`.
-- `site/` and `themes/katagami/` are added as watch targets. Theme assets are copied from `themes/katagami/assets/` to `/assets/`, and `src/admin/` and `src/media/` are passed through.
+- `site/` and `themes/katagami/` are added as watch targets. Theme assets are copied from `themes/katagami/assets/` to `/assets/`, and `src/media/` is passed through.
 
 ## Rules
 
