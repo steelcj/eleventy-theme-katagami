@@ -68,6 +68,13 @@ a:hover {
   outline-offset: 2px;
 }
 
+img {
+  max-inline-size: 100%;
+  block-size: auto;
+  /* Holds the image's space while it loads. */
+  background-color: var(--color-surface);
+}
+
 code,
 pre {
   font-family: var(--font-mono);

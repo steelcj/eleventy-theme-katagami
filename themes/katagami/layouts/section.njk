@@ -1,26 +1,29 @@
 {% extends "layouts/base.njk" %}
 
-{# Folder intro, then its children. A plain list until views arrive in phase 3. #}
+{#- Folder intro, lead image and blocks, then the folder's pages shown with its `view` (listing,
+    summary, tabular or album) and `sort` (order, title or date). #}
 {% block content %}
       <h1>{{ title }}</h1>
       {%- if description %}
       <p class="lead">{{ description }}</p>
       {%- endif %}
+      {%- include "parts/lead-image.njk" %}
       {{ content | safe }}
-      {%- set children = collections.all | eleventyNavigation(eleventyNavigation.key) %}
-      {%- if children | length %}
-      <section class="section-children" aria-labelledby="section-children-heading">
-        <h2 id="section-children-heading">{{ "inThisSection" | t(lang) }}</h2>
-        <ul>
-          {%- for child in children %}
-          <li>
-            <a href="{{ child.url }}"><bdi>{{ child.data.title }}</bdi></a>
-            {%- if child.data.description %}
-            <p>{{ child.data.description }}</p>
-            {%- endif %}
-          </li>
-          {%- endfor %}
-        </ul>
+      {%- set blockList = blocks %}
+      {%- set eagerBlock = -1 if image.src else blocks | firstImageBlock %}
+      {%- set headingLevel = 2 %}
+      {%- include "parts/block-list.njk" %}
+      {%- set items = collections.all | folderItems(page.url, sort or "order") %}
+      {%- if items | length %}
+      {%- set itemHeadingLevel = 3 %}
+      {%- set folderView = (view or "listing") | viewPartial(page.inputPath) %}
+      <section class="section-contents" aria-labelledby="section-contents-heading">
+        <h2 id="section-contents-heading">{{ "inThisSection" | t(lang) }}</h2>
+        {%- if folderView %}
+        {% include folderView %}
+        {%- else %}
+        <div class="block block--unknown" role="note">{{ "unknownView" | t(lang) }}: <code dir="ltr">{{ view }}</code></div>
+        {%- endif %}
       </section>
       {%- endif %}
 {%- endblock %}

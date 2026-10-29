@@ -1,6 +1,6 @@
 name: katagami
 title: Katagami
-version: 0.2.0
+version: 0.3.0
 description: A Plone-inspired Eleventy theme with a vintage Japanese, minimalist style.
 author: Vishpala
 license: MIT
@@ -8,7 +8,16 @@ eleventy: ">=3.0.0 <4.0.0"
 regions: [header, abovecontent, content, sidebar, belowcontent, footer]
 parts: [skip-links, logo, main-nav, language-switcher, breadcrumbs, section-nav, footer-text, site-actions, colophon]
 templates: [languages]
-blocks: []
-views: []
+blocks: [text, image, teaser, listing, grid, call-to-action]
+views: [listing, summary, tabular, album]
 fences: []
 fontSets: []
+# Images are processed at build time from src/media/. Only the processed files are
+# published. `sizes` rules match where an image appears.
+images:
+  formats: [avif, webp, auto]
+  widths: [320, 640, 960, 1280]
+  sizes:
+    content: "(min-width: 48rem) 42rem, 100vw"
+    card: "(min-width: 48rem) 20rem, 100vw"
+    thumbnail: "(min-width: 48rem) 10rem, 6rem"

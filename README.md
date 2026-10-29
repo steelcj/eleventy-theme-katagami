@@ -4,13 +4,14 @@ Katagami is a Plone-inspired theme for Eleventy with a vintage Japanese, minimal
 
 ## Getting started
 
-Katagami needs Node.js 18.12 or later.
+Katagami needs Node.js 22 or later, for the image pipeline; `.nvmrc` selects Node 24 for nvm users.
 
 ```sh
 npm install
 npm start          # serve at http://localhost:8080 and rebuild on change
 npm run build      # build all locales into _site/
 npm run lint       # stylelint, including the logical-property rule
+npm run check      # check the built pages in _site/ against the theme's markup rules
 ```
 
 `npm run build:production` builds with `ELEVENTY_ENV=production`, which leaves fixture locales such as `ar` out of the language switcher. The fixture pages are still built.
@@ -44,7 +45,7 @@ regionOverrides:
   footer: [contact-strip]
 ```
 
-Settings apply from the site down: the site's regions, then each folder's, then the page's. When a folder and a page both add to a region, the folder's parts come first and a part listed by both appears once. The theme reads these settings from YAML and JSON data files and from front matter, not from JavaScript data files.
+Settings apply from the site down: the site's regions, then each folder's, then the page's. When a folder and a page both add to a region, the folder's parts come first and a part listed by both appears once. The theme reads these settings from YAML and JSON data files and from front matter. A JavaScript data file that sets `regionOverrides` is reported with a build warning, since the theme does not read it. The fixture under `src/en/fixtures/` tests a folder, a subfolder and a page adding to the same region.
 
 In watch mode, edited and newly added override files are picked up straight away. A deleted override takes effect on the next change to any watched file, because Eleventy 3.1 does not rebuild when a file is deleted.
 
@@ -63,6 +64,40 @@ Pages have three navigation fields:
 ## Languages and translations
 
 The site root `/` is a language chooser, built by the theme unless `src/` has its own `index` page. The language switcher links to the current page in each language. Pages are translations of each other when they share a `translationKey`, which defaults to the URL without its language prefix, so `/en/services/` and `/fr/services/` match without any setting. A translation with a different slug sets the key of the page it translates, for example `translationKey: /services/design/` in `fr/services/conception.md`. When a language has no translation, the switcher links to its home page.
+
+## Blocks and views
+
+A page lists its blocks in front matter. Blocks render after the page's Markdown body, never inside it, so to put text between two blocks, editors use a text block rather than the body. Version 1 has six block types:
+
+| Type | Fields |
+| --- | --- |
+| `text` | `heading`, `body` (Markdown) |
+| `image` | `src`, `alt` or `decorative: true`, `caption` |
+| `teaser` | `link`, and optionally `title`, `description` and `image`, which default to the linked page's own |
+| `listing` | `folder` (defaults to the page's own), `view`, `sort`, `limit`, `heading` |
+| `grid` | `blocks`, `columns` (2, 3 or 4), `heading` |
+| `call-to-action` | `heading`, `body` (Markdown), `label`, `link` |
+
+```yaml
+blocks:
+  - type: text
+    body: A short introduction.
+  - type: grid
+    columns: 3
+    blocks:
+      - type: teaser
+        link: /en/services/design/
+```
+
+Listings sort by `order` (the default), `title`, `date` (newest first) or `date-asc` (soonest first, for upcoming events). A folder's `index.md` shows its pages with a view, set with `view` and `sort` in its front matter: `listing` (titles and descriptions, the default), `summary` (with dates and thumbnails), `tabular` (a table) or `album` (cards with images). A listing block uses the same views.
+
+An unknown block type or view shows a placeholder and a warning in development, and fails a production build.
+
+## Images
+
+Images live in `src/media/` and are processed at build time: every image becomes a `<picture>` with AVIF, WebP and the original format, at widths of 320, 640, 960 and 1280 pixels, never enlarged. Each has `width` and `height`, and loads lazily except the page's first image, its lead image or first image block, which loads at once. Only processed files are published, under `/media/img/`, and they are kept in `.cache/katagami/img/` so later builds do not encode them again.
+
+A page's lead image is its `image` field, `{ src, alt }`, which teasers, the summary view and the album view also use. Every image needs `alt` text unless it is marked `decorative: true`; a missing alt text or image file warns in development and fails a production build.
 
 ## Content rules
 

@@ -1,0 +1,22 @@
+{#- Listing: the pages in a folder, shown with a view. The folder defaults to the page's
+    own folder; `sort` is order, title or date, and `limit` caps the number of items. #}
+{%- if block.folder %}
+{%- set folderUrl = block.folder %}
+{%- elif page.inputPath.endsWith("/index.md") %}
+{%- set folderUrl = page.url %}
+{%- else %}
+{%- set folderUrl = navTrail[(navTrail | length) - 2].url %}
+{%- endif %}
+{%- set items = collections.all | folderItems(folderUrl, block.sort or "order", block.limit, page.inputPath) %}
+{%- set itemHeadingLevel = headingLevel + 1 if block.heading else headingLevel %}
+{%- set view = (block.view or "listing") | viewPartial(page.inputPath) %}
+<div class="block block--listing">
+  {%- if block.heading %}
+  <h{{ headingLevel }}>{{ block.heading }}</h{{ headingLevel }}>
+  {%- endif %}
+  {%- if view %}
+  {% include view %}
+  {%- else %}
+  <div class="block block--unknown" role="note">{{ "unknownView" | t(lang) }}: <code dir="ltr">{{ block.view }}</code></div>
+  {%- endif %}
+</div>

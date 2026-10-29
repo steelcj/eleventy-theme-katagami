@@ -1,0 +1,14 @@
+{#- Grid: other blocks side by side, in 2, 3 or 4 columns on wide screens, or as many as fit. #}
+{%- set blockList = block.blocks %}
+{%- set eagerBlock = -1 %}
+{%- set imageSizes = "card" %}
+{%- set innerHeadingLevel = headingLevel + 1 if block.heading else headingLevel %}
+<div class="block block--grid">
+  {%- if block.heading %}
+  <h{{ headingLevel }}>{{ block.heading }}</h{{ headingLevel }}>
+  {%- endif %}
+  {%- set headingLevel = innerHeadingLevel %}
+  <div class="grid{% if block.columns in [2, 3, 4] %} grid--columns-{{ block.columns }}{% endif %}">
+    {%- include "parts/block-list.njk" %}
+  </div>
+</div>

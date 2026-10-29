@@ -7,3 +7,8 @@ siteActions: Actions du site
 inThisSection: Dans cette section
 theme: Thème
 sectionNavigation: Navigation de la section
+unknownBlock: Type de bloc inconnu
+unknownView: Vue inconnue
+title: Titre
+description: Description
+date: Date

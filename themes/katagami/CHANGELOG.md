@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0] - 2026-10-28
+
+### Added
+
+- Blocks: text, image, teaser, listing, grid and call to action.
+- Views: listing, summary, tabular and album.
+- Build-time image processing with a cache, lead images, and required alt text.
+
+### Changed
+
+- Section navigation leaves the current folder closed.
+- Empty regions are not rendered.
+
 ## [0.2.0] - 2026-10-28
 
 ### Added

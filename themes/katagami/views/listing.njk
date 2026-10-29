@@ -1,0 +1,11 @@
+{#- Listing view: titles and descriptions. Expects `items`. #}
+<ul class="view view--listing">
+  {%- for item in items %}
+  <li>
+    <a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a>
+    {%- if item.data.description %}
+    <p>{{ item.data.description }}</p>
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ul>

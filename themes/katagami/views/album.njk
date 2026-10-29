@@ -1,0 +1,18 @@
+{#- Album view: a grid of cards, each with the item's lead image and title. The image is
+    decorative here: the title names the link. Expects `items` and `itemHeadingLevel`. #}
+<ul class="view view--album grid">
+  {%- for item in items %}
+  <li class="card">
+    {%- if item.data.image.src %}
+    {%- set img = { src: item.data.image.src, decorative: true } %}
+    {%- set imgSizes = "card" %}
+    {%- set imgEager = false %}
+    {% include "parts/picture.njk" %}
+    {%- endif %}
+    <h{{ itemHeadingLevel }} class="card__title"><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></h{{ itemHeadingLevel }}>
+    {%- if item.data.description %}
+    <p>{{ item.data.description }}</p>
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ul>

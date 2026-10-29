@@ -1,0 +1,27 @@
+{#- Tabular view: a table of titles, descriptions and, when any item has one, dates.
+    Expects `items`. #}
+{%- set showDates = items | hasDates %}
+<div class="view view--tabular">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{{ "title" | t(lang) }}</th>
+        <th scope="col">{{ "description" | t(lang) }}</th>
+        {%- if showDates %}
+        <th scope="col">{{ "date" | t(lang) }}</th>
+        {%- endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {%- for item in items %}
+      <tr>
+        <th scope="row"><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></th>
+        <td>{{ item.data.description }}</td>
+        {%- if showDates %}
+        <td>{% if item.data.date %}<time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(lang) }}</time>{% endif %}</td>
+        {%- endif %}
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>

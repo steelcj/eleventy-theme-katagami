@@ -1,0 +1,12 @@
+{#- Renders the blocks in `blockList`, each through its partial in blocks/, with headings
+    at `headingLevel`. A grid block renders its own blocks through this list too.
+    The block at `eagerBlock` holds the page's first image and loads it eagerly. #}
+{%- for block in blockList %}
+{%- set eager = loop.index0 == eagerBlock %}
+{%- set partial = block.type | blockPartial(page.inputPath) %}
+{%- if partial %}
+{% include partial %}
+{%- else %}
+<div class="block block--unknown" role="note">{{ "unknownBlock" | t(lang) }}: <code dir="ltr">{{ block.type }}</code></div>
+{%- endif %}
+{%- endfor %}

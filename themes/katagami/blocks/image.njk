@@ -1,0 +1,10 @@
+{#- Image: an image from src/media/ with alt text (or `decorative: true`) and an optional caption. #}
+{%- set img = block %}
+{%- set imgSizes = imageSizes or "content" %}
+{%- set imgEager = eager %}
+<figure class="block block--image">
+  {% include "parts/picture.njk" %}
+  {%- if block.caption %}
+  <figcaption>{{ block.caption }}</figcaption>
+  {%- endif %}
+</figure>

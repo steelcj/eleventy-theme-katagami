@@ -1,22 +1,24 @@
 {
   "name": "eleventy-theme-katagami",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Katagami, a Plone-inspired Eleventy theme with a vintage Japanese, minimalist style, with its demo and fixture site.",
   "private": true,
   "type": "module",
   "license": "MIT",
   "author": "Vishpala",
   "engines": {
-    "node": ">=18.12"
+    "node": ">=22"
   },
   "scripts": {
     "build": "eleventy",
     "build:production": "ELEVENTY_ENV=production eleventy",
     "start": "eleventy --serve --watch",
-    "lint": "stylelint --allow-empty-input \"themes/**/*.css\" \"site/**/*.css\""
+    "lint": "stylelint --allow-empty-input \"themes/**/*.css\" \"site/**/*.css\"",
+    "check": "node scripts/check-pages.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.1.7",
+    "@11ty/eleventy-img": "^7.1.1",
     "@11ty/eleventy-navigation": "^1.0.5",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.3.2",

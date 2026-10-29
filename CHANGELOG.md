@@ -2,6 +2,32 @@
 
 All notable changes to this project are recorded here. The format follows Keep a Changelog, and versions follow Semantic Versioning.
 
+## [0.3.0] - 2026-10-28
+
+Phase 3, blocks and views.
+
+### Added
+
+- Six block types, each one partial in `blocks/`: text, image, teaser, listing, grid and call to action. Blocks are listed in a page's front matter and rendered after its Markdown body, with headings one level below their container.
+- Four views in `views/` for folders and listing blocks: listing, summary, tabular and album. A folder chooses one with `view` and orders its pages with `sort`.
+- Unknown block types and views show a placeholder and a warning in development and fail a production build, with the block or view named in the error.
+- Images processed at build time with `@11ty/eleventy-img`: AVIF, WebP and the original format at 320, 640, 960 and 1280 pixels, with `sizes` rules for content, cards and thumbnails, `width` and `height`, and lazy loading except for the page's first image. Processed files are cached in `.cache/katagami/img/`, and original uploads are no longer published.
+- A lead image field, `image`, used on the page and by teasers, summaries and albums. Alt text is required unless an image is marked decorative.
+- Warnings for raw HTML in block fields, links to pages that do not exist, listings of folders that do not exist, and missing image files.
+- Dates formatted for each language with `Intl.DateTimeFormat`.
+- `sort: date-asc`, soonest first, for upcoming events, used by the workshop listings; `sort: date` stays newest first.
+- A build warning for a JavaScript data file that sets `regionOverrides`, which the theme reads only from YAML, JSON and front matter.
+- `npm run check`, which checks the built pages for language and direction, navigation labels and current items, breadcrumb markup, image attributes, empty regions and unknown blocks, and compares fixture pages with their expected regions.
+- A nested-folder fixture under `src/en/fixtures/`, where a folder, a subfolder and a page add parts to the same region.
+- Fixtures: blocks on every home page, an album, a table of dated workshops, image blocks and lead images, generated from three stencil patterns. Node.js 24 is used for development.
+
+### Changed
+
+- Section navigation does not open the current page, so on a folder's own page it shows the folder's ancestors and siblings, and it does not appear on a top-level section's own page.
+- A region is left out of the page when its parts render nothing, so there are no empty landmarks.
+- The text measure applies to text elements instead of the whole content column, so grids, tables and albums use its full width.
+- Node.js 22 or later is required.
+
 ## [0.2.0] - 2026-10-28
 
 Phase 2, folders, navigation and breadcrumbs.

@@ -1,4 +1,5 @@
 <!doctype html>
+{#- Each region renders its parts first and appears only when they produce something. #}
 {#- The trail from the language's home page to this page, used by navigation parts. #}
 {%- set navTrail = collections.all | eleventyNavigationBreadcrumb(eleventyNavigation.key, { includeSelf: true, allowMissing: true }) %}
 <html lang="{{ lang }}" dir="{{ dir }}">
@@ -15,23 +16,27 @@
 <body>
   <div class="page">
     {%- block header %}
-    {%- set parts = regions | regionParts("header", page.inputPath) %}
-    {%- if parts | length %}
-    <header class="region region--header">
-      {%- for part in parts %}
+    {%- set regionHtml %}
+      {%- for part in regions | regionParts("header", page.inputPath) %}
       {% include "parts/" + part + ".njk" %}
       {%- endfor %}
+    {%- endset %}
+    {%- if regionHtml | trim %}
+    <header class="region region--header">
+      {{- regionHtml | safe }}
     </header>
     {%- endif %}
     {%- endblock %}
 
     {%- block abovecontent %}
-    {%- set parts = regions | regionParts("abovecontent", page.inputPath) %}
-    {%- if parts | length %}
-    <div class="region region--abovecontent">
-      {%- for part in parts %}
+    {%- set regionHtml %}
+      {%- for part in regions | regionParts("abovecontent", page.inputPath) %}
       {% include "parts/" + part + ".njk" %}
       {%- endfor %}
+    {%- endset %}
+    {%- if regionHtml | trim %}
+    <div class="region region--abovecontent">
+      {{- regionHtml | safe }}
     </div>
     {%- endif %}
     {%- endblock %}
@@ -41,34 +46,40 @@
     </main>
 
     {%- block sidebar %}
-    {%- set parts = regions | regionParts("sidebar", page.inputPath) %}
-    {%- if parts | length %}
-    <aside class="region region--sidebar">
-      {%- for part in parts %}
+    {%- set regionHtml %}
+      {%- for part in regions | regionParts("sidebar", page.inputPath) %}
       {% include "parts/" + part + ".njk" %}
       {%- endfor %}
+    {%- endset %}
+    {%- if regionHtml | trim %}
+    <aside class="region region--sidebar">
+      {{- regionHtml | safe }}
     </aside>
     {%- endif %}
     {%- endblock %}
 
     {%- block belowcontent %}
-    {%- set parts = regions | regionParts("belowcontent", page.inputPath) %}
-    {%- if parts | length %}
-    <div class="region region--belowcontent">
-      {%- for part in parts %}
+    {%- set regionHtml %}
+      {%- for part in regions | regionParts("belowcontent", page.inputPath) %}
       {% include "parts/" + part + ".njk" %}
       {%- endfor %}
+    {%- endset %}
+    {%- if regionHtml | trim %}
+    <div class="region region--belowcontent">
+      {{- regionHtml | safe }}
     </div>
     {%- endif %}
     {%- endblock %}
 
     {%- block footer %}
-    {%- set parts = regions | regionParts("footer", page.inputPath) %}
-    {%- if parts | length %}
-    <footer class="region region--footer">
-      {%- for part in parts %}
+    {%- set regionHtml %}
+      {%- for part in regions | regionParts("footer", page.inputPath) %}
       {% include "parts/" + part + ".njk" %}
       {%- endfor %}
+    {%- endset %}
+    {%- if regionHtml | trim %}
+    <footer class="region region--footer">
+      {{- regionHtml | safe }}
     </footer>
     {%- endif %}
     {%- endblock %}

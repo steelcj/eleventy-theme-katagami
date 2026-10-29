@@ -1,0 +1,7 @@
+{#- Text: an optional heading and a Markdown body. #}
+<div class="block block--text">
+  {%- if block.heading %}
+  <h{{ headingLevel }}>{{ block.heading }}</h{{ headingLevel }}>
+  {%- endif %}
+  {{ block.body | markdown | safe }}
+</div>

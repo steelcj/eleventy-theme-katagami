@@ -1,0 +1,21 @@
+{#- Teaser: a card linking to a page. For a page on this site, the title, description and
+    image default to the target page's own. The image is decorative here: the title names the link. #}
+{%- set target = none %}
+{%- if block.link and block.link.startsWith("/") %}
+{%- set target = collections.all | pageByUrl(block.link, page.inputPath) %}
+{%- endif %}
+{%- set teaserTitle = block.title or target.data.title or block.link %}
+{%- set teaserDescription = block.description or target.data.description %}
+{%- set teaserImage = block.image or target.data.image %}
+<article class="block block--teaser card">
+  {%- if teaserImage.src %}
+  {%- set img = { src: teaserImage.src, decorative: true } %}
+  {%- set imgSizes = "card" %}
+  {%- set imgEager = false %}
+  {% include "parts/picture.njk" %}
+  {%- endif %}
+  <h{{ headingLevel }} class="card__title"><a href="{{ block.link }}"><bdi>{{ teaserTitle }}</bdi></a></h{{ headingLevel }}>
+  {%- if teaserDescription %}
+  <p>{{ teaserDescription }}</p>
+  {%- endif %}
+</article>

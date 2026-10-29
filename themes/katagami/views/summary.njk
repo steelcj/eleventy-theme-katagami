@@ -1,0 +1,23 @@
+{#- Summary view: each item as a short article with a thumbnail of its lead image, its date
+    and description. Expects `items` and `itemHeadingLevel`. #}
+<div class="view view--summary">
+  {%- for item in items %}
+  <article class="summary-item">
+    {%- if item.data.image.src %}
+    {%- set img = { src: item.data.image.src, decorative: true } %}
+    {%- set imgSizes = "thumbnail" %}
+    {%- set imgEager = false %}
+    {% include "parts/picture.njk" %}
+    {%- endif %}
+    <div class="summary-item__text">
+      <h{{ itemHeadingLevel }}><a href="{{ item.url }}"><bdi>{{ item.data.title }}</bdi></a></h{{ itemHeadingLevel }}>
+      {%- if item.data.date %}
+      <p class="summary-item__date"><time datetime="{{ item.date | isoDate }}">{{ item.date | formatDate(lang) }}</time></p>
+      {%- endif %}
+      {%- if item.data.description %}
+      <p>{{ item.data.description }}</p>
+      {%- endif %}
+    </div>
+  </article>
+  {%- endfor %}
+</div>

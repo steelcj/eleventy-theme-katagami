@@ -1,0 +1,5 @@
+{#- One image field, `img` ({ src, alt, decorative }), as an <img> that the image plugin
+    turns into a <picture>. `imgSizes` names a sizes rule in theme.yaml (content, card or
+    thumbnail); `imgEager` loads it at once with high priority, for the page's first image. #}
+<img src="{{ img.src | imageSrc(page.inputPath) }}" alt="{{ img | imageAlt(page.inputPath) }}" sizes="{{ katagami.images.sizes[imgSizes or 'content'] }}"
+  {%- if imgEager %} loading="eager" fetchpriority="high"{% else %} loading="lazy"{% endif %} decoding="async">

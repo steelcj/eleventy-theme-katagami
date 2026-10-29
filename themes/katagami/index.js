@@ -10,6 +10,7 @@ import markdownIt from "markdown-it";
 import yaml from "js-yaml";
 import matter from "gray-matter";
 import EleventyNavigation from "@11ty/eleventy-navigation";
+import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 
 // Loader paths are relative to the repository root, the folder Eleventy runs from.
 const THEME_DIR = path
@@ -74,12 +75,23 @@ function findRawHtml(source) {
 }
 
 function warnRawHtml(inputPath, fileContent) {
-  const { content, matter: frontMatter } = matter(fileContent);
+  const { content, data, matter: frontMatter } = matter(fileContent);
   // Report lines relative to the file, not to the body after front matter.
   const offset = frontMatter ? fileContent.slice(0, fileContent.indexOf(content)).split("\n").length - 1 : 0;
   for (const { line, html } of findRawHtml(content)) {
     console.warn(`[katagami] Raw HTML is escaped in ${inputPath}:${line + offset}: ${html}`);
   }
+  // Text fields of blocks, such as a text block's body, are Markdown too.
+  const visit = (value, where) => {
+    if (typeof value === "string") {
+      for (const { html } of findRawHtml(value)) console.warn(`[katagami] Raw HTML is escaped in ${inputPath}, ${where}: ${html}`);
+    } else if (Array.isArray(value)) {
+      value.forEach((item, i) => visit(item, `${where}[${i}]`));
+    } else if (value && typeof value === "object") {
+      for (const [key, item] of Object.entries(value)) visit(item, `${where}.${key}`);
+    }
+  };
+  visit(data.blocks, "blocks");
 }
 
 // A page's navigation key is its path inside the input folder: en/services/design
@@ -102,8 +114,20 @@ function navParent(inputDir, key) {
   return undefined;
 }
 
+// Files already reported in this build.
+const jsDataWarnings = new Set();
+
 // A directory or template data file in YAML or JSON, such as services/services.11tydata.yaml.
 function readDataFile(dir, name) {
+  // regionOverrides in a JavaScript data file would reach the page only through Eleventy's
+  // merged data, which the theme does not use for regions, so it is reported instead.
+  for (const ext of ["js", "mjs", "cjs"]) {
+    const file = path.join(dir, `${name}.11tydata.${ext}`);
+    if (!jsDataWarnings.has(file) && fs.existsSync(file) && fs.readFileSync(file, "utf8").includes("regionOverrides")) {
+      jsDataWarnings.add(file);
+      console.warn(`[katagami] ${file} sets regionOverrides, which the theme reads only from YAML or JSON data files and front matter. Move it to ${name}.11tydata.yaml.`);
+    }
+  }
   for (const ext of ["yaml", "yml", "json"]) {
     const file = path.join(dir, `${name}.11tydata.${ext}`);
     if (fs.existsSync(file)) {
@@ -157,6 +181,7 @@ export default function katagami(eleventyConfig) {
       name: manifest.title,
       version: manifest.version,
       defaults: { regions: readYaml(`${THEME_DIR}/defaults/regions.yaml`) },
+      images: manifest.images,
       strings,
       siteText,
       // Fixture locales are left out of the language switcher in production builds.
@@ -170,7 +195,10 @@ export default function katagami(eleventyConfig) {
   // Eleventy merges folder and page data before templates see it, and combines lists
   // on the way, so regionOverrides are read layer by layer from the files instead.
   const layerCache = new Map();
-  eleventyConfig.on("eleventy.before", () => layerCache.clear());
+  eleventyConfig.on("eleventy.before", () => {
+    layerCache.clear();
+    jsDataWarnings.clear();
+  });
   function regionOverrideLayers(inputPath) {
     if (!inputPath || !fs.existsSync(inputPath)) return [];
     if (layerCache.has(inputPath)) return layerCache.get(inputPath);
@@ -283,6 +311,59 @@ export default function katagami(eleventyConfig) {
     return translationIndexes.get(pages).get(`${targetLang} ${key}`) ?? `/${targetLang}/`;
   });
 
+  // Blocks and views. A name is a contract between content and the theme: an unknown
+  // block type or view warns and renders a placeholder in development, and fails a
+  // production build so that a broken page is never published.
+  function partialFor(kind, label, name, inputPath) {
+    const known =
+      typeof name === "string" &&
+      /^[a-z][a-z0-9-]*$/.test(name) &&
+      [SITE_DIR, THEME_DIR].some((dir) => fs.existsSync(path.join(dir, kind, `${name}.njk`)));
+    if (known) return `${kind}/${name}.njk`;
+    const message = `[katagami] Unknown ${label} "${name}" in ${inputPath}`;
+    if (state.production) {
+      // Eleventy's error report drops a filter's message, so it is printed first.
+      console.error(message);
+      throw new Error(message);
+    }
+    console.warn(message);
+    return undefined;
+  }
+  eleventyConfig.addFilter("blockPartial", (type, inputPath) => partialFor("blocks", "block type", type, inputPath));
+  eleventyConfig.addFilter("viewPartial", (view, inputPath) => partialFor("views", "view", view, inputPath));
+  eleventyConfig.addFilter("markdown", (text) => md.render(String(text ?? "")));
+  eleventyConfig.addFilter("pageByUrl", (pages, url, inputPath) => {
+    const found = pages.find((item) => item.url === url);
+    if (!found && inputPath) console.warn(`[katagami] ${url} matches no page, linked from ${inputPath}`);
+    return found;
+  });
+  // The pages directly inside a folder, given by its URL, sorted by order, title, date
+  // (newest first) or date-asc (soonest first, for upcoming events). Pages hidden from
+  // navigation are included, as in Plone listings.
+  const sorters = {
+    order: (a, b) =>
+      (a.data.order ?? Infinity) - (b.data.order ?? Infinity) || sorters.title(a, b),
+    title: (a, b) => String(a.data.title).localeCompare(String(b.data.title), a.data.lang),
+    date: (a, b) => b.date - a.date,
+    "date-asc": (a, b) => a.date - b.date,
+  };
+  eleventyConfig.addFilter("folderItems", (pages, folderUrl, sort = "order", limit = undefined, inputPath = undefined) => {
+    const key = pages.find((item) => item.url === folderUrl)?.data.eleventyNavigation?.key;
+    if (!key) {
+      if (inputPath) console.warn(`[katagami] ${folderUrl} matches no folder, listed in ${inputPath}`);
+      return [];
+    }
+    const items = pages
+      .filter((item) => item.data.eleventyNavigation?.parent === key)
+      .sort(sorters[sort] ?? sorters.order);
+    return limit ? items.slice(0, limit) : items;
+  });
+  eleventyConfig.addFilter("formatDate", (date, lang) =>
+    new Intl.DateTimeFormat(lang, { dateStyle: "long", timeZone: "UTC" }).format(new Date(date)),
+  );
+  eleventyConfig.addFilter("hasDates", (items) => items.some((item) => item.data.date));
+  eleventyConfig.addFilter("isoDate", (date) => new Date(date).toISOString().slice(0, 10));
+
   // Theme pages. The language chooser at / is skipped when the site has its own home page.
   if (!fs.readdirSync(inputDir).some((file) => file.startsWith("index."))) {
     eleventyConfig.addTemplate("katagami-languages.njk", '{% extends "templates/languages.njk" %}', {
@@ -292,8 +373,62 @@ export default function katagami(eleventyConfig) {
     });
   }
 
-  // Assets and passthrough folders.
+  // Images: every <img> on a page, from templates or Markdown, becomes a <picture> with
+  // the widths and formats in theme.yaml. Processed files are kept in .cache/ so a clean
+  // build does not encode them again, and only the files pages use are published.
+  const imageCache = ".cache/katagami/img";
+  const imageUrl = "/media/img/";
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+    formats: state.images.formats,
+    widths: state.images.widths,
+    outputDir: imageCache,
+    urlPath: imageUrl,
+    failOnError: state.production,
+    htmlOptions: {
+      imgAttributes: { loading: "lazy", decoding: "async", sizes: state.images.sizes.content },
+    },
+  });
+  eleventyConfig.on("eleventy.after", ({ results, directories }) => {
+    const used = new Set();
+    for (const { content } of results) {
+      for (const [file] of String(content).matchAll(/(?<=\/media\/img\/)[\w.-]+/g)) used.add(file);
+    }
+    const target = path.join(directories.output, imageUrl);
+    for (const file of used) {
+      if (fs.existsSync(path.join(imageCache, file))) {
+        fs.mkdirSync(target, { recursive: true });
+        fs.copyFileSync(path.join(imageCache, file), path.join(target, file));
+      }
+    }
+  });
+  // The <img> for an image field, `{ src, alt, decorative }`: alt text is required unless
+  // the image is marked decorative.
+  eleventyConfig.addFilter("imageAlt", (image, inputPath) => {
+    if (image?.decorative) return "";
+    if (image?.alt) return image.alt;
+    const message = `[katagami] Image ${image?.src} has no alt text and is not marked decorative, in ${inputPath}`;
+    if (state.production) {
+      console.error(message);
+      throw new Error(message);
+    }
+    console.warn(message);
+    return "";
+  });
+  // The image's own path, after warning when a site image is missing. A production build
+  // fails on it in the image plugin.
+  eleventyConfig.addFilter("imageSrc", (src, inputPath) => {
+    if (typeof src === "string" && src.startsWith("/") && !fs.existsSync(path.join(inputDir, src))) {
+      console.warn(`[katagami] Image ${src} is not in ${inputDir}, used in ${inputPath}`);
+    }
+    return src;
+  });
+  eleventyConfig.addFilter("firstImageBlock", (blocks) => (blocks ?? []).findIndex((block) => block?.type === "image"));
+
+  // Assets and passthrough folders. Raster images in media/ are published only as
+  // processed files.
   eleventyConfig.addPassthroughCopy({ [`${THEME_DIR}/assets`]: "assets" });
   eleventyConfig.addPassthroughCopy(`${inputDir}/admin`);
-  eleventyConfig.addPassthroughCopy(`${inputDir}/media`);
+  eleventyConfig.addPassthroughCopy(`${inputDir}/media`, {
+    filter: ["**/*", "!**/*.{jpg,jpeg,png,webp,avif,tif,tiff}"],
+  });
 }

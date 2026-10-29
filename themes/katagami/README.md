@@ -26,9 +26,11 @@ export default function (eleventyConfig) {
 - A virtual stub in `_layouts/` for each file in `layouts/`, so pages use `layout: page.njk` or `layout: section.njk`.
 - YAML data files, a computed `dir` for every page from its `lang` and `_data/locales.yaml`, and a `katagami` global with the manifest, default regions, interface strings and per-language site text from `{lang}/_site/*.md`.
 - A computed `eleventyNavigation` entry for every page in a language folder, with the Eleventy Navigation plugin registered.
-- Filters: `t` for interface strings, `regionParts` for the parts in a region, `translationUrl` for a page's translation, and `localeFor` for a locale's settings.
+- Filters: `t` for interface strings, `regionParts` for the parts in a region, `translationUrl` for a page's translation, `localeFor` for a locale's settings, `folderItems` for the pages in a folder, `markdown` for Markdown fields, and `formatDate` for dates.
 - A language chooser at `/`, unless the site has its own root `index` page.
 - A linter that warns about raw HTML in Markdown.
-- Passthrough copies of `assets/` to `/assets/`, and of the site's `admin/` and `media/`.
+- Block and view partials looked up by name, with a placeholder and warning for unknown names in development and a failed build in production.
+- Build-time image processing for every `<img>`, configured in `theme.yaml` under `images`, with processed files cached in `.cache/katagami/img/`.
+- Passthrough copies of `assets/` to `/assets/`, of the site's `admin/`, and of `media/` except raster images, which are published only as processed files.
 
 Nunjucks must be the same copy Eleventy uses, `@11ty/nunjucks`, or rendered Markdown is escaped twice. The repository's `package.json` aliases `nunjucks` to it.

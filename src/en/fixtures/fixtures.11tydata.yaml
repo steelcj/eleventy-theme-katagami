@@ -1,0 +1,5 @@
+# Everything under fixtures/ is hidden from menus. The folder adds a part to the
+# region below the content; the subfolder and the page add more.
+excludeFromNav: true
+regionOverrides:
+  belowcontent: [footer-text]

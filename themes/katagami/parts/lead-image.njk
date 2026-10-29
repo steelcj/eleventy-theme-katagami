@@ -1,0 +1,12 @@
+{#- The page's lead image, from the `image` field. It is the first image on the page, so it loads eagerly. #}
+{%- if image.src %}
+<figure class="lead-image">
+  {%- set img = image %}
+  {%- set imgSizes = "content" %}
+  {%- set imgEager = true %}
+  {% include "parts/picture.njk" %}
+  {%- if image.caption %}
+  <figcaption>{{ image.caption }}</figcaption>
+  {%- endif %}
+</figure>
+{%- endif %}
